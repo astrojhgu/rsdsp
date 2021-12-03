@@ -1,0 +1,12 @@
+[package]
+name = "rsdsp"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+num='0.4.0'
+special='0.8.1'
+ndarray={version='0.15.4', features=['rayon']}
+rustfft='6.0.1'
