@@ -61,3 +61,30 @@ U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Zero + Debug
         result
     }
 }
+
+pub struct DirectDownSampler<U>{
+    pub initial_state: Vec<U>,
+    down_sample_ratio: usize, 
+}
+
+
+impl<U> DirectDownSampler<U>
+where U: Copy + Debug,
+{
+    pub fn new(down_sample_ratio:usize)->Self{
+        Self{
+            initial_state: vec![]
+            , down_sample_ratio
+        }
+    }
+
+    pub fn downsample(&mut self, input: &[U])->Vec<U>{
+        self.initial_state.extend_from_slice(input);
+        let l=self.initial_state.len();
+        let noutput=l/self.down_sample_ratio;
+        let new_init_state=self.initial_state[noutput*self.down_sample_ratio..].to_vec();
+        let result=self.initial_state.iter().step_by(self.down_sample_ratio).cloned().collect();
+        self.initial_state=new_init_state;
+        result
+    }
+}
