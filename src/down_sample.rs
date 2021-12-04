@@ -53,11 +53,8 @@ U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Zero + Debug
         let tap=self.coeff_rev.len();
         let l=self.initial_state.len()-tap+1;
         let noutput=l/self.down_sample_ratio;
-        let new_init_state=self.initial_state[noutput*self.down_sample_ratio..].iter().cloned().collect::<Vec<_>>();
-        //println!("{:?}", self.initial_state);
-        //println!("{:?}", new_init_state);
+        let new_init_state=self.initial_state[noutput*self.down_sample_ratio..].to_vec();
         let result=self.initial_state.windows(tap).step_by(self.down_sample_ratio).take(noutput).map(|x| {
-            //println!("{:?}", x);
             x.iter().zip(self.coeff_rev.iter()).map(|(&a,&b)| a*b).sum::<U>()
         }).collect();
         self.initial_state=new_init_state;
