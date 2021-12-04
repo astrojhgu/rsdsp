@@ -52,6 +52,8 @@ U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Zero,
 {
     pub fn new(tap: usize, up_sample_ratio:usize)->Self{
         let c=coeff(tap, T::one()/T::from(up_sample_ratio).unwrap());
+        let norm=c.iter().cloned().sum::<T>()/T::from(up_sample_ratio).unwrap();
+        let c=c.iter().map(|&x| x/norm).collect();
         let filter=Filter::<U, T>::new(c);
         Self{
             lp_filter:filter
