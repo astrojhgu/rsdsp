@@ -37,9 +37,15 @@ impl<U, T> DownSampler<U, T>
 where T: Float + FloatConst + NumAssign + std::iter::Sum<T> + Debug + FftNum + Copy,
 U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Zero + Debug,
 {
-    pub fn new(tap: usize, down_sample_ratio:usize)->Self{
-        let mut c=coeff(tap, T::one()/T::from(down_sample_ratio).unwrap());
+    pub fn new(tap: usize, down_sample_ratio: usize)->Self{
+        let c=coeff(tap, T::one()/T::from(down_sample_ratio).unwrap());
+        Self::from_coeffs(&c, down_sample_ratio)
+    }
+
+    pub fn from_coeffs(c: &[T], down_sample_ratio:usize)->Self{
+        
         let tap=c.len();
+        let mut c=c.to_vec();
         c.reverse();
         Self{
             coeff_rev:c,
@@ -78,7 +84,7 @@ where U: Copy + Debug,
         }
     }
 
-    pub fn downsample(&mut self, input: &[U])->Vec<U>{
+    pub fn down_sample(&mut self, input: &[U])->Vec<U>{
         self.initial_state.extend_from_slice(input);
         let l=self.initial_state.len();
         let noutput=l/self.down_sample_ratio;

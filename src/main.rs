@@ -6,11 +6,16 @@ use num::{
 };
 
 
+use rsdsp::{
+    up_sample::UpSampler
+};
+
 fn main() {
-    let data:Vec<_>=(0..1024).map(|x| x as f64).collect();
-    let mut sampler=rsdsp::down_sample::DirectDownSampler::<f64>::new(12);
-    let filtered=sampler.downsample(&data);
-    for x in filtered{
+    let dphi=f64::PI()/2.0;
+    let mut upsampler=UpSampler::<f64,f64>::new(16, 8);
+    let signal:Vec<_>=(0..1024).map(|i| (i as f64*dphi).cos()).collect();
+    let signal1=upsampler.up_sample(&signal);
+    for &x in &signal1{
         println!("{}", x);
     }
 }
