@@ -46,6 +46,9 @@ U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Zero,
 {
     pub fn new(tap_per_ch: usize, up_sample_ratio:usize)->Self{
         let c=coeff(tap_per_ch*up_sample_ratio, T::one()/T::from(up_sample_ratio).unwrap());
+        let norm=c.iter().cloned().sum::<T>()/T::from(up_sample_ratio).unwrap();
+        let c:Vec<_>=c.iter().map(|&x| x/norm).collect();
+
         Self::from_coeffs(&c, up_sample_ratio)
     }
 
@@ -53,9 +56,7 @@ U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Zero,
         let tap_per_ch=c.len()/up_sample_ratio;
         assert_eq!(tap_per_ch*up_sample_ratio, c.len());
         //let c:Vec<_>=(0..(tap_per_ch*up_sample_ratio)).map(|x| T::from(x).unwrap()).collect();
-        let norm=c.iter().cloned().sum::<T>()/T::from(up_sample_ratio).unwrap();
-        let c=c.iter().map(|&x| x/norm);
-        let coeffs=Array1::from_iter(c)
+        let coeffs=Array1::from_vec(c.to_vec())
         .into_shape((tap_per_ch, up_sample_ratio)).unwrap()
         .t()
         .as_standard_layout().to_owned();

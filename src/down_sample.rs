@@ -39,6 +39,8 @@ U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Zero + Debug
 {
     pub fn new(tap: usize, down_sample_ratio: usize)->Self{
         let c=coeff(tap, T::one()/T::from(down_sample_ratio).unwrap());
+        let norm=c.iter().cloned().sum::<T>();
+        let c:Vec<_>=c.iter().map(|&x| x/norm).collect();
         Self::from_coeffs(&c, down_sample_ratio)
     }
 
