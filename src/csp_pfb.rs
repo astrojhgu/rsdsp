@@ -2,7 +2,7 @@
 //! Implemented with critical sampling pfb
 
 use crate::{cspfb, oscillator::HalfChShifter, utils::fftshift2};
-use ndarray::{parallel::prelude::*, s, Array2, ArrayView2, ArrayViewMut2, Axis, ScalarOperand};
+use ndarray::{parallel::prelude::*, s, Array2, ArrayView2, Axis, ScalarOperand};
 use num::{
     complex::Complex
     , traits::{Float, FloatConst, NumAssign}

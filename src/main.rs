@@ -1,19 +1,11 @@
 extern crate rsdsp;
 use num::{
-    traits::{
-        FloatConst
-    }
-    , complex::Complex, Zero
-};
-
-use rustfft::{
-    FftPlanner
+    complex::Complex, Zero
 };
 
 
 use rsdsp::{
-    up_sample::UpSampler
-    , utils::{
+    utils::{
         convolve_fft
     }
 };

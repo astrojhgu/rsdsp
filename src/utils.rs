@@ -7,7 +7,7 @@ use std::{
     }
     , iter::{
         Sum
-    }, fmt::Debug
+    }
 };
 /*
 use fftw::{

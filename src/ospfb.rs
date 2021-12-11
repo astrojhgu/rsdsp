@@ -60,9 +60,9 @@ where
     /// * `nch_total` - total number of channels, including even and odd, pos and neg channels
     /// * `coeff` - property low pass filter coefficients, the length of which should be equal to `nch_total`/2*`tap_per_ch`
     /// ```
-    /// extern crate rspfb;
-    /// use num_complex::Complex;
-    /// use rspfb::{
+    /// extern crate rsdsp;
+    /// use num::complex::Complex;
+    /// use rsdsp::{
     ///     windowed_fir
     ///     , ospfb::Analyzer
     /// };
@@ -70,7 +70,7 @@ where
     /// let nch=32;
     /// let tap_per_ch=16;
     /// let k=1.1;
-    /// let coeff=windowed_fir::coeff::<f64>(nch/2, tap_per_ch, k);
+    /// let coeff=windowed_fir::pfb_coeff::<f64>(nch/2, tap_per_ch, k);
     /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.view());
     /// ```
     pub fn new(nch_total: usize, coeff: ArrayView1<T>) -> Analyzer<R, T> {
@@ -129,19 +129,19 @@ where
     /// * `input_signal` - input 1-d time series of the input signal
     /// * return value - channelized signal, with `nch_total` rows
     /// ```
-    /// extern crate rspfb;
-    /// use num_complex::Complex;
-    /// use rspfb::{
+    /// extern crate rsdsp;
+    /// use num::complex::Complex;
+    /// use rsdsp::{
     ///     windowed_fir
     ///     , ospfb::Analyzer
     ///     , oscillator::COscillator
     /// };
-    /// use num_traits::{FloatConst};
+    /// use num::traits::{FloatConst};
     ///
     /// let nch=32;
     /// let tap_per_ch=16;
     /// let k=1.1;
-    /// let coeff=windowed_fir::coeff::<f64>(nch/2, tap_per_ch, k);
+    /// let coeff=windowed_fir::pfb_coeff::<f64>(nch/2, tap_per_ch, k);
     /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.view());
     /// let mut osc=COscillator::<f64>::new(0.0, f64::PI()/(nch/2) as f64*4.0);//some certain frequency
     /// let input_signal:Vec<_>=(0..256).map(|_| osc.get()).collect();
