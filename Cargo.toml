@@ -1,12 +1,25 @@
-[package]
-name = "rsdsp"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-num='0.4.0'
-special='0.8.1'
-ndarray={version='0.15.4', features=['rayon']}
-rustfft='6.0.1'
+clap = '3.0.0-rc.4'
+itertools-num = '0.1.3'
+num = '0.4.0'
+rustfft = '6.0.1'
+serde_yaml = '0.8.21'
+special = '0.8.1'
+rayon='1.5.1'
+
+[dependencies.ndarray]
+features = ['rayon']
+version = '0.15.4'
+
+[dependencies.ndarray-npy]
+default-features = true
+version = '0.8.1'
+
+[dependencies.serde]
+features = ['derive']
+version = '1.0.131'
+
+[package]
+edition = '2021'
+name = 'rsdsp'
+version = '0.1.0'

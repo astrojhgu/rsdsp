@@ -3,6 +3,12 @@ use crate::{
     utils::{fftshift, ifft},
     window_funcs::apply_blackman_window,
 };
+
+use ndarray::{
+    Array1
+};
+
+
 use num::{
     complex::{
         Complex
@@ -74,6 +80,21 @@ where
     //Array1::from(b).into_shape((l, m)).unwrap().t().to_owned()
     b
 }
+
+pub fn pfb_coeff<T>(nch: usize, tap_per_ch: usize, k: T) -> Array1<T>
+where
+    T: Float + FloatConst + NumAssign + std::iter::Sum<T> + std::fmt::Debug + FftNum,
+{
+    //let mut a = lp_coeff1(nch*tap_per_ch, T::from(tap_per_ch / 2).unwrap() * k);
+    let mut a = lp_coeff(nch*tap_per_ch, k/T::from(nch).unwrap());
+    symmetrize(&mut a);
+    let mut b = to_time_domain(&a);
+    //apply_hamming_window(&mut b);
+    apply_blackman_window(&mut b);
+    //Array1::from(b).into_shape((l, m)).unwrap().t().to_owned()
+    Array1::from(b)
+}
+
 
 pub fn shift_coeff<T>(input: &[T], w: T)->Vec<Complex<T>>
 where T: Float + FloatConst + NumAssign + std::fmt::Debug ,{
