@@ -1,22 +1,14 @@
-use crate::{
-    cfg::{PfbCfg, TwoStageCfg},
-    csp_pfb::CspPfb,
-    cspfb,
-    oscillator::COscillator,
-    ospfb,
-    windowed_fir::pfb_coeff,
-};
+use crate::{csp_pfb::CspPfb, cspfb, oscillator::COscillator, ospfb};
 
 use num::{
     complex::Complex,
     traits::{Float, FloatConst, NumAssign},
 };
 
-use ndarray::{parallel::prelude::*, Array1, Array2, ArrayView1, Axis, ScalarOperand};
+use ndarray::{ArrayView1, Axis, ScalarOperand};
 use rustfft::FftNum;
 
-use itertools_num::linspace;
-
+#[allow(clippy::too_many_arguments)]
 pub fn ampl_resp_2stages_1freq<T>(
     nch_coarse: usize,
     nch_fine: usize,
@@ -36,7 +28,12 @@ where
     let fine_pfb =
         cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, ArrayView1::from(&coeff_fine));
 
-    let mut csp = CspPfb::new(&selected_coarse_ch, &fine_pfb);
+    let tap_coarse = coeff_coarse.len() / (nch_coarse / 2);
+    let tap_fine = coeff_fine.len() / (nch_fine * 2);
+    assert_eq!(tap_coarse * nch_coarse / 2, coeff_coarse.len());
+    assert_eq!(tap_fine * nch_fine * 2, coeff_fine.len());
+
+    let mut csp = CspPfb::new(selected_coarse_ch, &fine_pfb);
     let mut osc = COscillator::new(T::zero(), freq);
     for _i in 0..niter - 1 {
         let mut signal = vec![Complex::<T>::default(); signal_len];

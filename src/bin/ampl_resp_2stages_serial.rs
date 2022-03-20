@@ -15,9 +15,9 @@ use num::{complex::Complex, traits::FloatConst};
 
 use serde_yaml::from_reader;
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
-use ndarray::{parallel::prelude::*, Array1, Array2, ArrayView1, Axis};
+use ndarray::{Array1, Array2, ArrayView1, Axis};
 
 use itertools_num::linspace;
 
@@ -26,7 +26,7 @@ use ndarray_npy::NpzWriter;
 type FloatType = f64;
 
 pub fn main() {
-    let matches = App::new("ampl_resp_2stages")
+    let matches = Command::new("ampl_resp_2stages")
         .arg(
             Arg::new("chcfg")
                 .short('c')

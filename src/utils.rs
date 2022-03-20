@@ -245,11 +245,8 @@ where
     unsafe { state.set_len(tap - 1) };
 }
 
-pub fn convolve_fft<T>(
-    signal: &mut [Complex<T>],
-    kernel: &[Complex<T>],
-    state: &mut Vec<Complex<T>>,
-) where
+pub fn convolve_fft<T>(signal: &mut [Complex<T>], kernel: &[Complex<T>], state: &mut [Complex<T>])
+where
     T: Copy + FftNum + Default + NumCast,
 {
     let tap = kernel.len();
@@ -258,7 +255,7 @@ pub fn convolve_fft<T>(
     let noutput = signal.len();
 
     state.copy_from_slice(&state1[noutput..]);
-    drop(state);
+    //drop(state);
 
     let nfft = state1.len();
     if nfft & (nfft - 1) != 0 {

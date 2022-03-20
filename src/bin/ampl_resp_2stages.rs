@@ -5,18 +5,14 @@ use std::fs::File;
 use rsdsp::{
     ampl_resp::ampl_resp_2stages_1freq,
     cfg::{PfbCfg, TwoStageCfg},
-    csp_pfb::CspPfb,
-    cspfb,
-    oscillator::COscillator,
-    ospfb,
     windowed_fir::pfb_coeff,
 };
 
-use num::{complex::Complex, traits::FloatConst};
+use num::traits::FloatConst;
 
 use serde_yaml::from_reader;
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 
 use ndarray::{parallel::prelude::*, Array1, Array2, ArrayView1, Axis};
 
@@ -27,7 +23,7 @@ use ndarray_npy::NpzWriter;
 type FloatType = f64;
 
 pub fn main() {
-    let matches = App::new("ampl_resp_2stages")
+    let matches = Command::new("ampl_resp_2stages")
         .arg(
             Arg::new("chcfg")
                 .short('c')
