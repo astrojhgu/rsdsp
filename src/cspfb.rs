@@ -5,15 +5,12 @@
 use crate::batch_filter::BatchFilter;
 use ndarray::{parallel::prelude::*, s, Array1, Array2, ArrayView1, Axis, ScalarOperand};
 use num::{
-    complex::Complex
-    , traits::{Float, FloatConst, NumAssign}
+    complex::Complex,
+    traits::{Float, FloatConst, NumAssign},
 };
 
 use rustfft::{FftNum, FftPlanner};
-use std::{
-    iter::Sum,
-    ops::{Mul},
-};
+use std::{iter::Sum, ops::Mul};
 
 /// Analyze channelizer
 #[derive(Clone)]
@@ -44,10 +41,7 @@ where
         + Default
         + Sync
         + Send,
-    Complex<T>: Copy
-        + std::convert::From<R>
-        + Default
-        + ScalarOperand
+    Complex<T>: Copy + std::convert::From<R> + Default + ScalarOperand,
 {
     /// constructor
     /// * `nch` - number of channels including both pos and neg ones

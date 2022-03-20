@@ -1,13 +1,7 @@
 #![allow(non_snake_case)]
 use std::{
-    ops::{
-        Index
-        , Add
-        , Mul
-    }
-    , iter::{
-        Sum
-    }
+    iter::Sum,
+    ops::{Add, Index, Mul},
 };
 /*
 use fftw::{
@@ -19,17 +13,9 @@ use rustfft::{FftNum, FftPlanner};
 use ndarray::{s, Array1, Array2, ArrayView2};
 
 use num::{
-    complex::Complex
-    , traits::{
-        Float
-        , FloatConst
-        , Num
-        , NumAssign
-        , NumCast
-    }
+    complex::Complex,
+    traits::{Float, FloatConst, Num, NumAssign, NumCast},
 };
-
-
 
 pub fn fft<T>(in_data: &[Complex<T>]) -> Vec<Complex<T>>
 where
@@ -66,7 +52,6 @@ where
     fft.process(&mut output);
     output
 }
-
 
 pub fn fftshift<T>(in_data: &[T]) -> Vec<T>
 where
@@ -107,7 +92,6 @@ where
     result
 }
 
-
 pub fn fftfreq<T>(n: usize) -> Vec<T>
 where
     T: Float,
@@ -120,7 +104,6 @@ where
     assert_eq!(result.len(), n as usize);
     result
 }
-
 
 pub struct ConcatedSlice<'a, 'b, T> {
     pub old: &'a [T],
@@ -230,63 +213,70 @@ where
 fn windows_mut_each<T>(v: &mut [T], n: usize, mut f: impl FnMut(&mut [T])) {
     let mut start = 0;
     let mut end = n;
-    while end <= v.len()  {
+    while end <= v.len() {
         f(&mut v[start..end]);
         start += 1;
         end += 1;
     }
 }
 
-pub fn convolve<U, T>(signal: &mut [U], kernel:&[T], state: &mut Vec<U>)
-where T: Copy,
+pub fn convolve<U, T>(signal: &mut [U], kernel: &[T], state: &mut Vec<U>)
+where
+    T: Copy,
     U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default,
 {
-    let tap=kernel.len();
-    assert_eq!(state.len(), tap-1);
+    let tap = kernel.len();
+    assert_eq!(state.len(), tap - 1);
     state.extend_from_slice(signal);
 
-    windows_mut_each(state, tap, |s|{
-        let x=s.iter().zip(kernel.iter().rev()).map(|(&a, &b)| a*b).sum::<U>();
-        s[0]=x;
+    windows_mut_each(state, tap, |s| {
+        let x = s
+            .iter()
+            .zip(kernel.iter().rev())
+            .map(|(&a, &b)| a * b)
+            .sum::<U>();
+        s[0] = x;
     });
 
     //self.initial_state=self.initial_state[output_length..].to_vec();
-    for (i, j) in (0..tap - 1).zip(state.len() + 1 - tap..state.len())
-    {
+    for (i, j) in (0..tap - 1).zip(state.len() + 1 - tap..state.len()) {
         state[i] = state[j];
     }
     unsafe { state.set_len(tap - 1) };
 }
 
-
-pub fn convolve_fft<T>(signal: &mut [Complex<T>], kernel:&[Complex<T>], state: &mut Vec<Complex<T>>)
-where T: Copy+FftNum+Default+NumCast,
+pub fn convolve_fft<T>(
+    signal: &mut [Complex<T>],
+    kernel: &[Complex<T>],
+    state: &mut Vec<Complex<T>>,
+) where
+    T: Copy + FftNum + Default + NumCast,
 {
-    let tap=kernel.len();
-    assert_eq!(state.len(), tap-1);
-    let mut state1:Vec<_>=state.iter().chain(signal.iter()).cloned().collect();
-    let noutput=signal.len();
-    
+    let tap = kernel.len();
+    assert_eq!(state.len(), tap - 1);
+    let mut state1: Vec<_> = state.iter().chain(signal.iter()).cloned().collect();
+    let noutput = signal.len();
+
     state.copy_from_slice(&state1[noutput..]);
     drop(state);
 
-    let nfft=state1.len();
-    if nfft&(nfft-1)!=0{
+    let nfft = state1.len();
+    if nfft & (nfft - 1) != 0 {
         eprintln!("Warning: length {} not optimal for fft", nfft);
     }
 
-    let tailing_zeros=(0..(nfft-kernel.len())).map(|_| Complex::<T>::default());
-    let mut kernel1:Vec<_>=kernel.iter().cloned().chain(tailing_zeros).collect();
-    let mut planner=FftPlanner::<T>::new();
-    let fft=planner.plan_fft_forward(nfft);
-    let ifft=planner.plan_fft_inverse(nfft);
-    
+    let tailing_zeros = (0..(nfft - kernel.len())).map(|_| Complex::<T>::default());
+    let mut kernel1: Vec<_> = kernel.iter().cloned().chain(tailing_zeros).collect();
+    let mut planner = FftPlanner::<T>::new();
+    let fft = planner.plan_fft_forward(nfft);
+    let ifft = planner.plan_fft_inverse(nfft);
+
     fft.process(&mut state1);
     fft.process(&mut kernel1);
-    let norm=T::from(nfft).unwrap();
-    state1.iter_mut().zip(kernel1.iter()).for_each(|(a,&b)|{
-        *a=*a*b/norm;
+    let norm = T::from(nfft).unwrap();
+    state1.iter_mut().zip(kernel1.iter()).for_each(|(a, &b)| {
+        *a = *a * b / norm;
     });
     ifft.process(&mut state1);
-    signal.copy_from_slice(&state1[(tap-1)..]);
+    signal.copy_from_slice(&state1[(tap - 1)..]);
 }

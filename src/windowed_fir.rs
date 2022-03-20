@@ -4,25 +4,14 @@ use crate::{
     window_funcs::apply_blackman_window,
 };
 
-use ndarray::{
-    Array1
-};
-
+use ndarray::Array1;
 
 use num::{
-    complex::{
-        Complex
-    }
-    , traits::{
-        Float
-        , FloatConst
-        , NumAssign
-        , Zero
-    }
+    complex::Complex,
+    traits::{Float, FloatConst, NumAssign, Zero},
 };
 
 use rustfft::FftNum;
-
 
 pub fn lp_coeff<T>(tap: usize, k: T) -> Vec<T>
 where
@@ -30,12 +19,7 @@ where
 {
     (0..tap)
         .map(|i| {
-            let x = T::from(if i < tap / 2 {
-                i
-            } else {
-                tap - i
-            })
-            .unwrap();
+            let x = T::from(if i < tap / 2 { i } else { tap - i }).unwrap();
             let y = T::from(tap / 2).unwrap() * k;
             if x >= y {
                 T::zero()
@@ -86,7 +70,7 @@ where
     T: Float + FloatConst + NumAssign + std::iter::Sum<T> + std::fmt::Debug + FftNum,
 {
     //let mut a = lp_coeff1(nch*tap_per_ch, T::from(tap_per_ch / 2).unwrap() * k);
-    let mut a = lp_coeff(nch*tap_per_ch, k/T::from(nch).unwrap());
+    let mut a = lp_coeff(nch * tap_per_ch, k / T::from(nch).unwrap());
     symmetrize(&mut a);
     let mut b = to_time_domain(&a);
     //apply_hamming_window(&mut b);
@@ -95,21 +79,35 @@ where
     Array1::from(b)
 }
 
-
-pub fn shift_coeff<T>(input: &[T], w: T)->Vec<Complex<T>>
-where T: Float + FloatConst + NumAssign + std::fmt::Debug ,{
-    let tap=input.len() as isize;
-    input.iter().enumerate().map(|(i, &x)|{
-        let f=(Complex::new(T::zero(), T::one())*w*T::from(i as isize-tap as isize/2).unwrap()).exp();
-        f*x
-    }).collect()
+pub fn shift_coeff<T>(input: &[T], w: T) -> Vec<Complex<T>>
+where
+    T: Float + FloatConst + NumAssign + std::fmt::Debug,
+{
+    let tap = input.len() as isize;
+    input
+        .iter()
+        .enumerate()
+        .map(|(i, &x)| {
+            let f = (Complex::new(T::zero(), T::one())
+                * w
+                * T::from(i as isize - tap as isize / 2).unwrap())
+            .exp();
+            f * x
+        })
+        .collect()
 }
 
-pub fn shift_coeff_real<T>(input: &[T], w: T)->Vec<T>
-where T: Float + FloatConst + NumAssign + std::fmt::Debug ,{
-    let tap=input.len() as isize;
-    input.iter().enumerate().map(|(i, &x)|{
-        let f=(w*T::from(i as isize-tap as isize/2).unwrap()).cos();
-        f*x
-    }).collect()
+pub fn shift_coeff_real<T>(input: &[T], w: T) -> Vec<T>
+where
+    T: Float + FloatConst + NumAssign + std::fmt::Debug,
+{
+    let tap = input.len() as isize;
+    input
+        .iter()
+        .enumerate()
+        .map(|(i, &x)| {
+            let f = (w * T::from(i as isize - tap as isize / 2).unwrap()).cos();
+            f * x
+        })
+        .collect()
 }

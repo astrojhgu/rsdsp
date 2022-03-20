@@ -1,9 +1,8 @@
 //! digital oscillator for single frequency complex signal
 use num::{
-    complex::Complex
-    , traits::{Float, FloatConst}
+    complex::Complex,
+    traits::{Float, FloatConst},
 };
-
 
 /// Complex oscillator
 pub struct COscillator<T> {
@@ -30,21 +29,22 @@ where
     }
 }
 
-pub struct ROscillator<T>{
-    phi: T, 
+pub struct ROscillator<T> {
+    phi: T,
     dphi_dpt: T,
 }
 
 impl<T> ROscillator<T>
-where T:Float
+where
+    T: Float,
 {
-    pub fn new(phi:T , dphi_dpt: T)->Self{
-        ROscillator{phi, dphi_dpt}
+    pub fn new(phi: T, dphi_dpt: T) -> Self {
+        ROscillator { phi, dphi_dpt }
     }
 
-    pub fn get(&mut self)->T{
-        let y=self.phi.cos();
-        self.phi=self.phi+self.dphi_dpt;
+    pub fn get(&mut self) -> T {
+        let y = self.phi.cos();
+        self.phi = self.phi + self.dphi_dpt;
         y
     }
 }

@@ -4,16 +4,12 @@
 use crate::{batch_filter::BatchFilter, oscillator::HalfChShifter};
 use ndarray::{parallel::prelude::*, s, Array1, Array2, ArrayView1, Axis, ScalarOperand};
 use num::{
-    complex::Complex
-    , traits::{Float, FloatConst, NumAssign}
+    complex::Complex,
+    traits::{Float, FloatConst, NumAssign},
 };
-
 
 use rustfft::{FftNum, FftPlanner};
-use std::{
-    iter::Sum,
-    ops::{Mul},
-};
+use std::{iter::Sum, ops::Mul};
 
 /// Pfb for channelizing
 pub struct Analyzer<R, T> {
@@ -50,11 +46,7 @@ where
         + Sum
         + Sync
         + Send,
-    Complex<T>: Copy
-        + std::convert::From<R>
-        + Sum
-        + Default
-        + ScalarOperand
+    Complex<T>: Copy + std::convert::From<R> + Sum + Default + ScalarOperand,
 {
     /// constructor
     /// * `nch_total` - total number of channels, including even and odd, pos and neg channels
@@ -209,9 +201,7 @@ where
         );
 
         let mut x1 = self.filter_even.filter_par(signal.view());
-        let mut x2 = self
-            .filter_odd
-            .filter_par(signal_shifted.view());
+        let mut x2 = self.filter_odd.filter_par(signal_shifted.view());
 
         let mut result = unsafe { Array2::<Complex<T>>::uninit((nch_total, batch)).assume_init() };
 

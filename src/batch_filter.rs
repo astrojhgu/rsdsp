@@ -2,8 +2,8 @@
 
 use std::{
     iter::Sum,
-    ops::{Add, Mul},
     marker::PhantomData,
+    ops::{Add, Mul},
 };
 
 use num::complex::Complex;
@@ -17,14 +17,14 @@ use crate::filter;
 pub struct BatchFilter<U, T> {
     /// reversed coefficients, i.e., impulse respone
     pub filters: Vec<filter::Filter<U, T>>,
-    pub u: PhantomData<U>
+    pub u: PhantomData<U>,
 }
 
 impl<U, T> BatchFilter<U, T>
 where
-    T: Copy + Sync+Send,
-    U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default+Sync+Send,
-    Complex<T>:std::convert::From<U>
+    T: Copy + Sync + Send,
+    U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Sync + Send,
+    Complex<T>: std::convert::From<U>,
 {
     /// construct a FIR with its coefficients    
     pub fn new(coeff: ArrayView2<T>) -> Self {
@@ -35,14 +35,16 @@ where
             .map(|i| filter::Filter::<U, T>::new(coeff.slice(s![i, ..]).to_vec()))
             .collect();
 
-        BatchFilter { filters, u: PhantomData{} }
+        BatchFilter {
+            filters,
+            u: PhantomData {},
+        }
     }
 
     /// filter a time series signal
     /// return the filtered signal
 
-    pub fn filter(&mut self, signal: ArrayView1<U>) -> Array2<Complex<T>>
-    {
+    pub fn filter(&mut self, signal: ArrayView1<U>) -> Array2<Complex<T>> {
         let nch = self.filters.len();
         let batch = signal.len() / nch;
         /*
@@ -50,7 +52,7 @@ where
         let x1 = x1.t();
         let x1 = x1.as_standard_layout();
         */
-        let mut x1:Array2<U> = signal
+        let mut x1: Array2<U> = signal
             .into_shape((batch, nch))
             .unwrap()
             .t()
@@ -64,12 +66,11 @@ where
                 let x = Array1::from(ft.filter(x1_row.as_slice().unwrap()));
                 x1_row.assign(&x);
             });
-        x1.t().as_standard_layout().map(|&x|Complex::<T>::from(x))
+        x1.t().as_standard_layout().map(|&x| Complex::<T>::from(x))
         //x1
     }
 
-    pub fn filter_par(&mut self, signal: ArrayView1<U>) -> Array2<Complex<T>>
-    {
+    pub fn filter_par(&mut self, signal: ArrayView1<U>) -> Array2<Complex<T>> {
         let nch = self.filters.len();
         let batch = signal.len() / nch;
         /*
@@ -77,7 +78,7 @@ where
         let x1 = x1.t();
         let x1 = x1.as_standard_layout();
         */
-        let mut x1:Array2<U> = signal
+        let mut x1: Array2<U> = signal
             .into_shape((batch, nch))
             .unwrap()
             .t()
@@ -91,6 +92,6 @@ where
                 let x = Array1::from(ft.filter(x1_row.as_slice().unwrap()));
                 x1_row.assign(&x);
             });
-        x1.t().as_standard_layout().map(|&x|Complex::<T>::from(x))
+        x1.t().as_standard_layout().map(|&x| Complex::<T>::from(x))
     }
 }

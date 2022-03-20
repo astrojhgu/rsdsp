@@ -1,11 +1,7 @@
 //! fractional delayer
 
 use ndarray::ScalarOperand;
-use num::{
-    traits::{
-        Float, FloatConst, NumAssign, NumCast
-    }
-};
+use num::traits::{Float, FloatConst, NumAssign, NumCast};
 
 use std::{
     iter::Sum,

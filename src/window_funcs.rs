@@ -1,14 +1,9 @@
 #![allow(clippy::many_single_char_names)]
-use num::{
-    traits::{
-        Float, FloatConst, NumAssign
-    }
-};
-use special::Error;
+use num::traits::{Float, FloatConst, NumAssign};
 
 pub fn hann_coeff<T>(l: usize, m: usize, _k: T) -> Vec<T>
 where
-    T: Float + Error + FloatConst,
+    T: Float + FloatConst,
 {
     let beta = T::from(0.65).unwrap();
     let period = T::from(1.0).unwrap() / T::from(l as f64 * 1.08).unwrap();
