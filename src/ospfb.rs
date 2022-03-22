@@ -89,6 +89,11 @@ where
         }
     }
 
+    pub fn predict_output_length(&self, input_len: usize)->usize{
+        (self.buffer.len()+input_len)/self.filter_even.filters.len()
+    }
+
+
     pub fn buffer_input(&mut self, input_signal: &[R]) -> Array1<R> {
         let nch_each = self.filter_even.filters.len();
 
@@ -104,10 +109,10 @@ where
         //self.buffer =
         //    ArrayView1::from(&input_signal[nch_each * batch - self.buffer.len()..]).to_vec();
         self.buffer
-            .reserve(input_signal.len() - nch_each * batch + self.buffer.len());
+            .reserve(input_signal.len() + self.buffer.len()- nch_each * batch );
         unsafe {
             self.buffer
-                .set_len(input_signal.len() - nch_each * batch + self.buffer.len())
+                .set_len(input_signal.len() + self.buffer.len()- nch_each * batch )
         };
         let l = self.buffer.len();
         self.buffer
@@ -146,6 +151,7 @@ where
         let nch_total = nch_each * 2;
 
         let batch = (self.buffer.len() + input_signal.len()) / nch_each;
+        assert_eq!(batch, self.predict_output_length(input_signal.len()));
 
         let signal = self.buffer_input(input_signal);
         let signal_shifted = Array1::from_iter(

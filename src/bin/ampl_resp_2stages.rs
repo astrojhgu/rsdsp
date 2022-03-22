@@ -62,15 +62,6 @@ pub fn main() {
                 .required(false),
         )
         .arg(
-            Arg::new("siglen")
-                .short('l')
-                .long("len")
-                .takes_value(true)
-                .value_name("signal length")
-                .default_value("8192")
-                .required(false),
-        )
-        .arg(
             Arg::new("niter")
                 .short('t')
                 .long("niter")
@@ -117,17 +108,15 @@ pub fn main() {
         .parse::<FloatType>()
         .unwrap();
     let nfreq = matches.value_of("nfreq").unwrap().parse::<usize>().unwrap();
-    let signal_len = matches
-        .value_of("siglen")
-        .unwrap()
-        .parse::<usize>()
-        .unwrap();
     let niter = matches.value_of("niter").unwrap().parse::<usize>().unwrap();
 
     let coeff_coarse =
         pfb_coeff::<FloatType>(nch_coarse / 2, tap_coarse, k_coarse as FloatType).into_raw_vec();
     let coeff_fine =
         pfb_coeff::<FloatType>(nch_fine * 2, tap_fine, k_fine as FloatType).into_raw_vec();
+
+    let signal_len=coeff_coarse.len()+coeff_fine.len()*nch_coarse/2;
+    println!("signal length={}", signal_len);
     let bandwidth = (fmax - fmin) * FloatType::PI();
     let df = bandwidth / (nfreq + 1) as FloatType;
     let freqs = Array1::from(

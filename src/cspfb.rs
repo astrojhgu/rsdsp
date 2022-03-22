@@ -72,6 +72,10 @@ where
         self.batch_filter.filters.len()
     }
 
+    pub fn predict_output_length(&self, input_len: usize)->usize{
+        (self.buffer.len()+input_len)/self.batch_filter.filters.len()
+    }
+
     pub fn buffer_input(&mut self, input_signal: &[R]) -> Array1<R> {
         let nch = self.batch_filter.filters.len();
         let batch = (self.buffer.len() + input_signal.len()) / nch;
@@ -83,10 +87,10 @@ where
                 .cloned(),
         );
         self.buffer
-            .reserve(input_signal.len() - nch * batch + self.buffer.len());
+            .reserve(input_signal.len() + self.buffer.len()- nch * batch );
         unsafe {
             self.buffer
-                .set_len(input_signal.len() - nch * batch + self.buffer.len())
+                .set_len(input_signal.len() + self.buffer.len()- nch * batch )
         };
         let l = self.buffer.len();
         self.buffer

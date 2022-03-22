@@ -77,7 +77,8 @@ where
         let nch_fine = self.pfb[0].nch();
         let data_len = x.ncols();
         let nch_output = self.coarse_ch_selected.len() * nch_fine / 2;
-        let mut result = unsafe { Array2::uninit((nch_output, data_len / nch_fine)).assume_init() };
+        let output_length=self.pfb[0].predict_output_length(data_len);
+        let mut result = unsafe { Array2::uninit((nch_output, output_length)).assume_init() };
 
         //self.coarse_ch_selected.iter().into_par_iter();
         let _ = result
@@ -107,7 +108,8 @@ where
         let nch_fine = self.pfb[0].nch();
         let data_len = x.ncols();
         let nch_output = self.coarse_ch_selected.len() * nch_fine / 2;
-        let mut result = unsafe { Array2::uninit((nch_output, data_len / nch_fine)).assume_init() };
+        let output_length=self.pfb[0].predict_output_length(data_len);
+        let mut result = unsafe { Array2::uninit((nch_output, output_length)).assume_init() };
 
         //self.coarse_ch_selected.iter().into_par_iter();
         let _ = result

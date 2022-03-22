@@ -3,15 +3,12 @@ extern crate rsdsp;
 use std::fs::File;
 
 use rsdsp::{
+    ampl_resp::ampl_resp_2stages_1freq,
     cfg::{PfbCfg, TwoStageCfg},
-    csp_pfb::CspPfb,
-    cspfb,
-    oscillator::COscillator,
-    ospfb,
     windowed_fir::pfb_coeff,
 };
 
-use num::{complex::Complex, traits::FloatConst};
+use num::traits::FloatConst;
 
 use serde_yaml::from_reader;
 
@@ -65,15 +62,6 @@ pub fn main() {
                 .required(false),
         )
         .arg(
-            Arg::new("siglen")
-                .short('l')
-                .long("len")
-                .takes_value(true)
-                .value_name("signal length")
-                .default_value("8192")
-                .required(false),
-        )
-        .arg(
             Arg::new("niter")
                 .short('t')
                 .long("niter")
@@ -120,15 +108,15 @@ pub fn main() {
         .parse::<FloatType>()
         .unwrap();
     let nfreq = matches.value_of("nfreq").unwrap().parse::<usize>().unwrap();
-    let signal_len = matches
-        .value_of("siglen")
-        .unwrap()
-        .parse::<usize>()
-        .unwrap();
     let niter = matches.value_of("niter").unwrap().parse::<usize>().unwrap();
 
-    let coeff_coarse = pfb_coeff::<FloatType>(nch_coarse / 2, tap_coarse, k_coarse as FloatType);
-    let coeff_fine = pfb_coeff::<FloatType>(nch_fine * 2, tap_fine, k_fine as FloatType);
+    let coeff_coarse =
+        pfb_coeff::<FloatType>(nch_coarse / 2, tap_coarse, k_coarse as FloatType).into_raw_vec();
+    let coeff_fine =
+        pfb_coeff::<FloatType>(nch_fine * 2, tap_fine, k_fine as FloatType).into_raw_vec();
+
+    let signal_len=coeff_coarse.len()+coeff_fine.len()*nch_coarse/2;
+    println!("signal length={}", signal_len);
     let bandwidth = (fmax - fmin) * FloatType::PI();
     let df = bandwidth / (nfreq + 1) as FloatType;
     let freqs = Array1::from(
@@ -144,37 +132,20 @@ pub fn main() {
         .zip(freqs.axis_iter(Axis(0)))
         .for_each(|((mut fine_resp, mut coarse_resp), freq)| {
             let freq = freq[()];
-            let mut coarse_pfb = ospfb::Analyzer::<Complex<FloatType>, FloatType>::new(
+
+            let (coarse_resp1, fine_resp1) = ampl_resp_2stages_1freq(
                 nch_coarse,
-                ArrayView1::from(&coeff_coarse),
+                nch_fine,
+                &coeff_coarse,
+                &coeff_fine,
+                &selected_coarse_ch,
+                freq,
+                signal_len,
+                niter,
             );
-            let fine_pfb = cspfb::Analyzer::<Complex<FloatType>, FloatType>::new(
-                nch_fine * 2,
-                ArrayView1::from(&coeff_fine),
-            );
 
-            let mut csp = CspPfb::new(&selected_coarse_ch, &fine_pfb);
-            let mut osc = COscillator::new(0.0, freq);
-            for _i in 0..niter - 1 {
-                let mut signal = vec![Complex::<FloatType>::default(); signal_len];
-                signal.iter_mut().for_each(|x| *x = osc.get());
-                let coarse_data = coarse_pfb.analyze(&signal);
-                let _ = csp.analyze(coarse_data.view());
-            }
-
-            let mut signal = vec![Complex::<FloatType>::default(); signal_len];
-            signal.iter_mut().for_each(|x| *x = osc.get());
-            let coarse_data = coarse_pfb.analyze(&signal);
-            let coarse_spec = coarse_data.map(|x| x.norm_sqr()).sum_axis(Axis(1));
-
-            for (i, &c) in selected_coarse_ch.iter().enumerate() {
-                coarse_resp[i] = coarse_spec[c];
-            }
-
-            let fine_data = csp.analyze(coarse_data.view());
-
-            let fine_spec = fine_data.map(|x| x.norm_sqr()).sum_axis(Axis(1));
-            fine_resp.assign(&fine_spec.view());
+            coarse_resp.assign(&ArrayView1::from(&coarse_resp1));
+            fine_resp.assign(&ArrayView1::from(&fine_resp1));
         });
 
     let outfile = std::fs::File::create(matches.value_of("outfile").unwrap()).unwrap();
