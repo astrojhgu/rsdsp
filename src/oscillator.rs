@@ -5,6 +5,7 @@ use num::{
 };
 
 /// Complex oscillator
+#[derive(Debug)]
 pub struct COscillator<T> {
     /// current phase
     phi: T,
@@ -29,6 +30,7 @@ where
     }
 }
 
+#[derive(Debug)]
 pub struct ROscillator<T> {
     phi: T,
     dphi_dpt: T,
@@ -50,6 +52,7 @@ where
 }
 
 /// Shifting signal by half of the channel spacing
+#[derive(Debug)]
 pub struct HalfChShifter<T> {
     /// number of channels
     nch: usize,

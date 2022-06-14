@@ -15,7 +15,11 @@ use std::{
 };
 
 /// Struct for central processor pfb
-pub struct CspPfb<T> {
+#[derive(Debug)]
+pub struct CspPfb<T>
+where
+    T: std::fmt::Debug,
+{
     /// an array of cspfbs, each one for one coarse channel that is selected
     pfb: Vec<cspfb::Analyzer<Complex<T>, T>>,
     /// coarse channels selected
@@ -77,7 +81,7 @@ where
         let nch_fine = self.pfb[0].nch();
         let data_len = x.ncols();
         let nch_output = self.coarse_ch_selected.len() * nch_fine / 2;
-        let output_length=self.pfb[0].predict_output_length(data_len);
+        let output_length = self.pfb[0].predict_output_length(data_len);
         let mut result = unsafe { Array2::uninit((nch_output, output_length)).assume_init() };
 
         //self.coarse_ch_selected.iter().into_par_iter();
@@ -108,7 +112,7 @@ where
         let nch_fine = self.pfb[0].nch();
         let data_len = x.ncols();
         let nch_output = self.coarse_ch_selected.len() * nch_fine / 2;
-        let output_length=self.pfb[0].predict_output_length(data_len);
+        let output_length = self.pfb[0].predict_output_length(data_len);
         let mut result = unsafe { Array2::uninit((nch_output, output_length)).assume_init() };
 
         //self.coarse_ch_selected.iter().into_par_iter();

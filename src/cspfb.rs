@@ -13,8 +13,12 @@ use rustfft::{FftNum, FftPlanner};
 use std::{iter::Sum, ops::Mul};
 
 /// Analyze channelizer
-#[derive(Clone)]
-pub struct Analyzer<R, T> {
+#[derive(Clone, Debug)]
+pub struct Analyzer<R, T>
+where
+    R: std::fmt::Debug,
+    T: std::fmt::Debug,
+{
     /// A vec of filters, one for each branch
     batch_filter: BatchFilter<R, T>,
     /// a buffer, ensurning that the input signal length need not to be nch*tap. The remaining elements will be stored and be concated with the input next time.
@@ -72,8 +76,8 @@ where
         self.batch_filter.filters.len()
     }
 
-    pub fn predict_output_length(&self, input_len: usize)->usize{
-        (self.buffer.len()+input_len)/self.batch_filter.filters.len()
+    pub fn predict_output_length(&self, input_len: usize) -> usize {
+        (self.buffer.len() + input_len) / self.batch_filter.filters.len()
     }
 
     pub fn buffer_input(&mut self, input_signal: &[R]) -> Array1<R> {
@@ -87,10 +91,10 @@ where
                 .cloned(),
         );
         self.buffer
-            .reserve(input_signal.len() + self.buffer.len()- nch * batch );
+            .reserve(input_signal.len() + self.buffer.len() - nch * batch);
         unsafe {
             self.buffer
-                .set_len(input_signal.len() + self.buffer.len()- nch * batch )
+                .set_len(input_signal.len() + self.buffer.len() - nch * batch)
         };
         let l = self.buffer.len();
         self.buffer

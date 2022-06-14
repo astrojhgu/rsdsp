@@ -13,8 +13,12 @@ use ndarray::{parallel::prelude::*, s, Array1, Array2, ArrayView1, ArrayView2, A
 use crate::filter;
 
 /// FIR filter
-#[derive(Clone)]
-pub struct BatchFilter<U, T> {
+#[derive(Clone, Debug)]
+pub struct BatchFilter<U, T>
+where
+    T: std::fmt::Debug,
+    U: std::fmt::Debug,
+{
     /// reversed coefficients, i.e., impulse respone
     pub filters: Vec<filter::Filter<U, T>>,
     pub u: PhantomData<U>,
@@ -22,9 +26,9 @@ pub struct BatchFilter<U, T> {
 
 impl<U, T> BatchFilter<U, T>
 where
-    T: Copy + Sync + Send,
-    U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Sync + Send,
-    Complex<T>: std::convert::From<U>,
+    T: Copy + Sync + Send + std::fmt::Debug,
+    U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Sync + Send + std::fmt::Debug,
+    Complex<T>: std::convert::From<U> + std::fmt::Debug,
 {
     /// construct a FIR with its coefficients    
     pub fn new(coeff: ArrayView2<T>) -> Self {

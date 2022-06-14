@@ -6,7 +6,7 @@ use std::{
 };
 
 /// FIR filter
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Filter<U, T> {
     /// reversed coefficients, i.e., impulse respone
     pub coeff_rev: Vec<T>,

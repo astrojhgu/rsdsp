@@ -12,7 +12,12 @@ use rustfft::{FftNum, FftPlanner};
 use std::{iter::Sum, ops::Mul};
 
 /// Pfb for channelizing
-pub struct Analyzer<R, T> {
+#[derive(Debug)]
+pub struct Analyzer<R, T>
+where
+    R: std::fmt::Debug,
+    T: std::fmt::Debug,
+{
     /// filters for even channels
     filter_even: BatchFilter<R, T>,
 
@@ -89,10 +94,9 @@ where
         }
     }
 
-    pub fn predict_output_length(&self, input_len: usize)->usize{
-        (self.buffer.len()+input_len)/self.filter_even.filters.len()
+    pub fn predict_output_length(&self, input_len: usize) -> usize {
+        (self.buffer.len() + input_len) / self.filter_even.filters.len()
     }
-
 
     pub fn buffer_input(&mut self, input_signal: &[R]) -> Array1<R> {
         let nch_each = self.filter_even.filters.len();
@@ -109,10 +113,10 @@ where
         //self.buffer =
         //    ArrayView1::from(&input_signal[nch_each * batch - self.buffer.len()..]).to_vec();
         self.buffer
-            .reserve(input_signal.len() + self.buffer.len()- nch_each * batch );
+            .reserve(input_signal.len() + self.buffer.len() - nch_each * batch);
         unsafe {
             self.buffer
-                .set_len(input_signal.len() + self.buffer.len()- nch_each * batch )
+                .set_len(input_signal.len() + self.buffer.len() - nch_each * batch)
         };
         let l = self.buffer.len();
         self.buffer

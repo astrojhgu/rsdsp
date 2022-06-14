@@ -86,8 +86,10 @@ where
 }
 
 /// Fractional delayer
-#[derive(Clone)]
-pub struct FracDelayer<T, R = T> {
+#[derive(Clone, Debug)]
+pub struct FracDelayer<T, R = T>
+where T:std::fmt::Debug
+{
     pub coeff_rev: Vec<T>,
     pub buffer: Vec<R>,
     pub max_delay: usize,
@@ -138,6 +140,7 @@ where
             i: delay_i,
             f: delay_f,
         } = dv.to_delay_value();
+        assert!((delay_i.abs() as usize) < self.max_delay);
         //println!("{:?} {:?}", delay_i, delay_f);
         //println!("{:?} {:?}", delay_i, delay_f);
 
@@ -146,6 +149,7 @@ where
         let concated = ConcatedSlice::new(&self.buffer, signal);
         let first_idx = self.max_delay;
         let end_idx = concated.len() - self.coeff_rev.len() - self.max_delay;
+
         let result: Vec<_> = (first_idx..end_idx)
             .map(|i| {
                 (0..self.coeff_rev.len())
