@@ -88,7 +88,8 @@ where
 /// Fractional delayer
 #[derive(Clone, Debug)]
 pub struct FracDelayer<T, R = T>
-where T:std::fmt::Debug
+where
+    T: std::fmt::Debug,
 {
     pub coeff_rev: Vec<T>,
     pub buffer: Vec<R>,
@@ -168,8 +169,31 @@ where
 }
 
 /// construct a delayer from [`crate::cfg::DelayerCfg`]
-pub fn cfg2delayer(cfg: &DelayerCfg) -> FracDelayer<f64, f64> {
-    FracDelayer::new(cfg.max_delay, cfg.half_tap)
+pub fn cfg2delayer<T, R>(cfg: &DelayerCfg) -> FracDelayer<T, R>
+where
+    T: Copy
+        + Float
+        + FloatConst
+        + std::ops::MulAssign<T>
+        + ScalarOperand
+        + NumAssign
+        + std::iter::Sum
+        + std::fmt::Debug
+        + Sync
+        + Send,
+    R: Copy
+        + Add<R, Output = R>
+        + Mul<R, Output = R>
+        + Mul<T, Output = R>
+        + MulAssign<R>
+        + ScalarOperand
+        + NumAssign
+        + Sum
+        + std::fmt::Debug
+        + Sync
+        + Send,
+{
+    FracDelayer::<T, R>::new(cfg.max_delay, cfg.half_tap)
 }
 
 #[cfg(test)]
