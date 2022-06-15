@@ -9,11 +9,13 @@ use num::{
     traits::{Float, FloatConst, NumAssign},
 };
 
+use serde::{Serialize, Deserialize};
+
 use rustfft::{FftNum, FftPlanner};
 use std::{iter::Sum, ops::Mul};
 
 /// Analyze channelizer
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Analyzer<R, T>
 where
     R: std::fmt::Debug,
@@ -35,7 +37,8 @@ where
         + std::fmt::Debug
         + Sync
         + Send
-        + FftNum,
+        + FftNum
+        ,
     R: Copy
         + Mul<T, Output = R>
         + ScalarOperand
@@ -44,7 +47,8 @@ where
         + Sum
         + Default
         + Sync
-        + Send,
+        + Send
+        ,
     Complex<T>: Copy + std::convert::From<R> + Default + ScalarOperand,
 {
     /// constructor

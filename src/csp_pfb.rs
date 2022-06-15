@@ -9,16 +9,17 @@ use num::{
 };
 
 use rustfft::FftNum;
+use serde::{Serialize, Deserialize};
 use std::{
     iter::Sum,
     ops::{Add, Mul},
 };
 
 /// Struct for central processor pfb
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CspPfb<T>
 where
-    T: std::fmt::Debug,
+    T: std::fmt::Debug+ Float,
 {
     /// an array of cspfbs, each one for one coarse channel that is selected
     pfb: Vec<cspfb::Analyzer<Complex<T>, T>>,
@@ -39,7 +40,8 @@ where
         + std::fmt::Debug
         + Sync
         + Send
-        + FftNum,
+        + FftNum
+        ,
     Complex<T>: Copy
         + Add<Complex<T>, Output = Complex<T>>
         + Mul<T, Output = Complex<T>>
@@ -47,7 +49,8 @@ where
         + Sum
         + Default
         + ScalarOperand
-        + Sync,
+        + Sync
+        ,
 {
     /// constructor of CsPfb
     /// coarse_ch_selected

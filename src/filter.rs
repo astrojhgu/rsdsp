@@ -1,12 +1,14 @@
 //! A module containing FIR filter
 
+use serde::{Serialize, Deserialize};
+
 use std::{
     iter::Sum,
     ops::{Add, Mul},
 };
 
 /// FIR filter
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Filter<U, T> {
     /// reversed coefficients, i.e., impulse respone
     pub coeff_rev: Vec<T>,

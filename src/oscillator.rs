@@ -4,9 +4,14 @@ use num::{
     traits::{Float, FloatConst},
 };
 
+use serde::{Deserialize, Serialize};
+
 /// Complex oscillator
-#[derive(Debug)]
-pub struct COscillator<T> {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct COscillator<T>
+where
+    T: Float,
+{
     /// current phase
     phi: T,
     /// phase difference between points
@@ -30,7 +35,40 @@ where
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CFreqScanner<T> {
+    phi: T,
+    dphi_dpt: T,
+    ddphi_dpt2: T,
+}
+
+impl<T> CFreqScanner<T>
+where
+    T: Float + FloatConst,
+{
+    pub fn new(phi: T, dphi_dpt: T, ddphi_dpt2: T) -> Self {
+        CFreqScanner {
+            phi,
+            dphi_dpt,
+            ddphi_dpt2,
+        }
+    }
+
+    pub fn get(&mut self) -> Complex<T> {
+        let y = (Complex::<T>::new(T::zero(), T::one()) * self.phi).exp();
+        self.phi = self.phi + self.dphi_dpt;
+        self.dphi_dpt = self.dphi_dpt + self.ddphi_dpt2;
+        if self.dphi_dpt > T::PI() {
+            self.dphi_dpt = self.dphi_dpt - T::from(2).unwrap() * T::PI();
+        }
+        if self.dphi_dpt < -T::PI() {
+            self.dphi_dpt = self.dphi_dpt + T::from(2).unwrap() * T::PI();
+        }
+        y
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ROscillator<T> {
     phi: T,
     dphi_dpt: T,
@@ -52,8 +90,11 @@ where
 }
 
 /// Shifting signal by half of the channel spacing
-#[derive(Debug)]
-pub struct HalfChShifter<T> {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct HalfChShifter<T>
+where
+    T: Float,
+{
     /// number of channels
     nch: usize,
     /// buffered factor, so that they need not to be computed repeatly

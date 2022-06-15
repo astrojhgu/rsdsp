@@ -8,15 +8,17 @@ use num::{
     traits::{Float, FloatConst, NumAssign},
 };
 
+use serde::{Serialize, Deserialize};
+
 use rustfft::{FftNum, FftPlanner};
 use std::{iter::Sum, ops::Mul};
 
 /// Pfb for channelizing
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Analyzer<R, T>
 where
     R: std::fmt::Debug,
-    T: std::fmt::Debug,
+    T: std::fmt::Debug+Float,
 {
     /// filters for even channels
     filter_even: BatchFilter<R, T>,

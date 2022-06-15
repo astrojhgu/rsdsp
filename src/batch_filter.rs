@@ -1,5 +1,7 @@
 //! A module containing FIR filter
 
+use serde::{Deserialize, Serialize};
+
 use std::{
     iter::Sum,
     marker::PhantomData,
@@ -13,7 +15,7 @@ use ndarray::{parallel::prelude::*, s, Array1, Array2, ArrayView1, ArrayView2, A
 use crate::filter;
 
 /// FIR filter
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct BatchFilter<U, T>
 where
     T: std::fmt::Debug,
