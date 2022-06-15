@@ -5,10 +5,11 @@ use num::{
     traits::{Float, FloatConst, NumAssign},
 };
 
-
-
 use ndarray::{ArrayView1, Axis, ScalarOperand};
 use rustfft::FftNum;
+use serde::Serialize;
+
+//use serde_yaml::to_writer;
 
 #[allow(clippy::too_many_arguments)]
 pub fn ampl_resp_2stages_1freq<T>(
@@ -22,13 +23,18 @@ pub fn ampl_resp_2stages_1freq<T>(
     niter: usize,
 ) -> (Vec<T>, Vec<T>)
 where
-    T: Float + FloatConst + NumAssign + FftNum + Default + ScalarOperand,
+    T: Float + FloatConst + NumAssign + FftNum + Default + ScalarOperand + Serialize,
     Complex<T>: ScalarOperand,
 {
     let mut coarse_pfb =
         ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
+    
+    //to_writer(std::fs::File::create("./coarse_pfb.yaml").unwrap(), &coarse_pfb).unwrap();
+
     let fine_pfb =
         cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, ArrayView1::from(&coeff_fine));
+
+    //to_writer(std::fs::File::create("./fine_pfb.yaml").unwrap(), &fine_pfb).unwrap();
 
     let tap_coarse = coeff_coarse.len() / (nch_coarse / 2);
     let tap_fine = coeff_fine.len() / (nch_fine * 2);
