@@ -24,7 +24,7 @@ where
     /// an array of cspfbs, each one for one coarse channel that is selected
     pfb: Vec<cspfb::Analyzer<Complex<T>, T>>,
     /// coarse channels selected
-    coarse_ch_selected: Vec<usize>,
+    pub coarse_ch_selected: Vec<usize>,
     /// shift frequency in each coarse channel by half of the width of a fine channel
     shifter: HalfChShifter<T>,
 }
@@ -66,6 +66,10 @@ where
             coarse_ch_selected,
             shifter,
         }
+    }
+
+    pub fn nfine_per_coarse(&self)->usize{
+        self.pfb[0].nch()/2
     }
 
     /// Further channelize the input coarse channels to finer channels

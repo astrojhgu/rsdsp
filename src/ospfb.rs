@@ -96,6 +96,10 @@ where
         }
     }
 
+    pub fn nch_total(&self)->usize{
+        self.filter_even.filters.len()*2
+    }
+
     pub fn predict_output_length(&self, input_len: usize) -> usize {
         (self.buffer.len() + input_len) / self.filter_even.filters.len()
     }

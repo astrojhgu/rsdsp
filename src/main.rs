@@ -1,31 +1,19 @@
 extern crate rsdsp;
+use ndarray_npy::{
+    write_npy
+};
 use num::{complex::Complex, Zero};
-
-use rsdsp::utils::convolve_fft;
+use ndarray::{
+    ArrayView1
+};
+use rsdsp::{ospfb::Analyzer, utils::convolve_fft, windowed_fir::pfb_coeff, ampl_resp::ampl_resp};
 
 fn main() {
-    let mut signal = vec![Complex::<f64>::zero(); 16];
-    signal[0] = 1_f64.into();
-    let kernel: Vec<_> = (0..17).map(|x| Complex::<f64>::from(x as f64)).collect();
-    let mut state = vec![Complex::<f64>::zero(); 16];
-    convolve_fft(&mut signal, &kernel, &mut state);
-    for x in &signal {
-        println!("{}", x.re);
-    }
-    println!("===");
-    for x in &state {
-        println!("{}", x.re);
-    }
-
-    println!("===");
-    let mut signal = vec![Complex::<f64>::zero(); 16];
-    convolve_fft(&mut signal, &kernel, &mut state);
-    for x in &signal {
-        println!("{}", x.re);
-    }
-
-    println!("===");
-    for x in &state {
-        println!("{}", x.re);
-    }
+    let nch = 32;
+    let tap = 16;
+    let k = 1.1;
+    let coeff = pfb_coeff::<f64>(nch / 2, tap, k).into_raw_vec();
+    let mut pfb = Analyzer::<Complex<f64>, f64>::new(nch, ArrayView1::from(&coeff));
+    let result=ampl_resp(&mut pfb, -1.0, 1.0, 512, 65536, 2);
+    write_npy("a.npy", &result);
 }

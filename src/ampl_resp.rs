@@ -5,7 +5,7 @@ use num::{
     traits::{Float, FloatConst, NumAssign},
 };
 
-use ndarray::{ArrayView1, Axis, ScalarOperand};
+use ndarray::{ArrayView1, Axis, ScalarOperand, Array2};
 use rustfft::FftNum;
 use serde::Serialize;
 
@@ -64,4 +64,44 @@ where
         .sum_axis(Axis(1))
         .into_raw_vec();
     (coarse_resp, fine_resp)
+}
+
+
+#[allow(clippy::too_many_arguments)]
+pub fn ampl_resp<T>(
+    pfb: &mut ospfb::Analyzer<Complex<T>, T>,
+    f_min: T,
+    f_max: T,
+    n_freq: usize,
+    signal_len: usize,
+    niter: usize,
+) -> Array2<T>
+where
+    T: Float + FloatConst + NumAssign + FftNum + Default + ScalarOperand + Serialize,
+    Complex<T>: ScalarOperand,
+{
+    //let mut coarse_pfb =
+    //    ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
+    let df=(f_max-f_min)/T::from(n_freq-1).unwrap();
+    let mut result=Array2::zeros((pfb.nch_total(), n_freq));
+
+    result.axis_iter_mut(Axis(1)).enumerate().for_each(|(i,mut x)|{
+        let mut osc=COscillator::new(T::zero(), (T::from(i).unwrap()*df+f_min)*T::PI());
+        let mut n=0;
+        println!("{}/{}", i, n_freq);
+        loop{
+            let signal:Vec<_>=(0..signal_len).map(|_| osc.get()).collect();
+            let channelized=pfb.analyze(&signal);
+
+            n+=1;
+            if n==niter{
+                x.assign(&channelized.map(|y|{
+                    y.norm_sqr()
+                }).mean_axis(Axis(1)).unwrap().view());
+                break;
+            }
+        }
+    });
+    result
+    
 }
