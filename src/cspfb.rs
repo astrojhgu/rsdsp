@@ -9,7 +9,7 @@ use num::{
     traits::{Float, FloatConst, NumAssign},
 };
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use rustfft::{FftNum, FftPlanner};
 use std::{iter::Sum, ops::Mul};
@@ -37,8 +37,7 @@ where
         + std::fmt::Debug
         + Sync
         + Send
-        + FftNum
-        ,
+        + FftNum,
     R: Copy
         + Mul<T, Output = R>
         + ScalarOperand
@@ -47,8 +46,7 @@ where
         + Sum
         + Default
         + Sync
-        + Send
-        ,
+        + Send,
     Complex<T>: Copy + std::convert::From<R> + Default + ScalarOperand,
 {
     /// constructor

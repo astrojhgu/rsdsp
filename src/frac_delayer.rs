@@ -141,7 +141,7 @@ where
             i: delay_i,
             f: delay_f,
         } = dv.to_delay_value();
-        assert!((delay_i.abs() as usize) < self.max_delay);
+        assert!(delay_i.unsigned_abs() < self.max_delay);
         //println!("{:?} {:?}", delay_i, delay_f);
         //println!("{:?} {:?}", delay_i, delay_f);
 

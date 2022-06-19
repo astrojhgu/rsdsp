@@ -23,7 +23,7 @@ pub struct TwoStageCfg {
 }
 
 /// cfg to generate FracDelayer
-#[derive(Debug, PartialEq, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Copy)]
 pub struct DelayerCfg {
     /// max value of possible delay
     pub max_delay: usize,

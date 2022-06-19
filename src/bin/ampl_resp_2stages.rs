@@ -1,6 +1,5 @@
 extern crate rsdsp;
 
-
 use std::fs::File;
 
 use rsdsp::{
@@ -116,7 +115,7 @@ pub fn main() {
     let coeff_fine =
         pfb_coeff::<FloatType>(nch_fine * 2, tap_fine, k_fine as FloatType).into_raw_vec();
 
-    let signal_len=coeff_coarse.len()+coeff_fine.len()*nch_coarse/2;
+    let signal_len = coeff_coarse.len() + coeff_fine.len() * nch_coarse / 2;
     println!("signal length={}", signal_len);
     let bandwidth = (fmax - fmin) * FloatType::PI();
     let df = bandwidth / (nfreq + 1) as FloatType;

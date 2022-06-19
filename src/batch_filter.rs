@@ -29,7 +29,14 @@ where
 impl<U, T> BatchFilter<U, T>
 where
     T: Copy + Sync + Send + std::fmt::Debug,
-    U: Copy + Add<U, Output = U> + Mul<T, Output = U> + Sum + Default + Sync + Send + std::fmt::Debug,
+    U: Copy
+        + Add<U, Output = U>
+        + Mul<T, Output = U>
+        + Sum
+        + Default
+        + Sync
+        + Send
+        + std::fmt::Debug,
     Complex<T>: std::convert::From<U> + std::fmt::Debug,
 {
     /// construct a FIR with its coefficients    

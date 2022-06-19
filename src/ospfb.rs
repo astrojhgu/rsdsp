@@ -8,7 +8,7 @@ use num::{
     traits::{Float, FloatConst, NumAssign},
 };
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use rustfft::{FftNum, FftPlanner};
 use std::{iter::Sum, ops::Mul};
@@ -18,7 +18,7 @@ use std::{iter::Sum, ops::Mul};
 pub struct Analyzer<R, T>
 where
     R: std::fmt::Debug,
-    T: std::fmt::Debug+Float,
+    T: std::fmt::Debug + Float,
 {
     /// filters for even channels
     filter_even: BatchFilter<R, T>,
@@ -96,8 +96,8 @@ where
         }
     }
 
-    pub fn nch_total(&self)->usize{
-        self.filter_even.filters.len()*2
+    pub fn nch_total(&self) -> usize {
+        self.filter_even.filters.len() * 2
     }
 
     pub fn predict_output_length(&self, input_len: usize) -> usize {

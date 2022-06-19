@@ -9,7 +9,7 @@ use num::{
 };
 
 use rustfft::FftNum;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::{
     iter::Sum,
     ops::{Add, Mul},
@@ -19,7 +19,7 @@ use std::{
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CspPfb<T>
 where
-    T: std::fmt::Debug+ Float,
+    T: std::fmt::Debug + Float,
 {
     /// an array of cspfbs, each one for one coarse channel that is selected
     pfb: Vec<cspfb::Analyzer<Complex<T>, T>>,
@@ -40,8 +40,7 @@ where
         + std::fmt::Debug
         + Sync
         + Send
-        + FftNum
-        ,
+        + FftNum,
     Complex<T>: Copy
         + Add<Complex<T>, Output = Complex<T>>
         + Mul<T, Output = Complex<T>>
@@ -49,8 +48,7 @@ where
         + Sum
         + Default
         + ScalarOperand
-        + Sync
-        ,
+        + Sync,
 {
     /// constructor of CsPfb
     /// coarse_ch_selected
@@ -68,8 +66,8 @@ where
         }
     }
 
-    pub fn nfine_per_coarse(&self)->usize{
-        self.pfb[0].nch()/2
+    pub fn nfine_per_coarse(&self) -> usize {
+        self.pfb[0].nch() / 2
     }
 
     /// Further channelize the input coarse channels to finer channels
@@ -92,7 +90,7 @@ where
         let mut result = unsafe { Array2::uninit((nch_output, output_length)).assume_init() };
 
         //self.coarse_ch_selected.iter().into_par_iter();
-        let _ = result
+        result
             .axis_chunks_iter_mut(Axis(0), nch_fine / 2)
             .zip(self.pfb.iter_mut())
             .zip(x.axis_iter(Axis(0)))
@@ -123,7 +121,7 @@ where
         let mut result = unsafe { Array2::uninit((nch_output, output_length)).assume_init() };
 
         //self.coarse_ch_selected.iter().into_par_iter();
-        let _ = result
+        result
             .axis_chunks_iter_mut(Axis(0), nch_fine / 2)
             .into_par_iter()
             .zip_eq(self.pfb.par_iter_mut())

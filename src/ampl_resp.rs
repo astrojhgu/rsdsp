@@ -5,7 +5,7 @@ use num::{
     traits::{Float, FloatConst, NumAssign},
 };
 
-use ndarray::{ArrayView1, Axis, ScalarOperand, Array2};
+use ndarray::{Array2, ArrayView1, Axis, ScalarOperand};
 use rustfft::FftNum;
 use serde::Serialize;
 
@@ -28,7 +28,7 @@ where
 {
     let mut coarse_pfb =
         ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
-    
+
     //to_writer(std::fs::File::create("./coarse_pfb.yaml").unwrap(), &coarse_pfb).unwrap();
 
     let fine_pfb =
@@ -66,7 +66,6 @@ where
     (coarse_resp, fine_resp)
 }
 
-
 #[allow(clippy::too_many_arguments)]
 pub fn ampl_resp<T>(
     pfb: &mut ospfb::Analyzer<Complex<T>, T>,
@@ -82,26 +81,32 @@ where
 {
     //let mut coarse_pfb =
     //    ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
-    let df=(f_max-f_min)/T::from(n_freq-1).unwrap();
-    let mut result=Array2::zeros((pfb.nch_total(), n_freq));
+    let df = (f_max - f_min) / T::from(n_freq - 1).unwrap();
+    let mut result = Array2::zeros((pfb.nch_total(), n_freq));
 
-    result.axis_iter_mut(Axis(1)).enumerate().for_each(|(i,mut x)|{
-        let mut osc=COscillator::new(T::zero(), (T::from(i).unwrap()*df+f_min)*T::PI());
-        let mut n=0;
-        println!("{}/{}", i, n_freq);
-        loop{
-            let signal:Vec<_>=(0..signal_len).map(|_| osc.get()).collect();
-            let channelized=pfb.analyze(&signal);
-
-            n+=1;
-            if n==niter{
-                x.assign(&channelized.map(|y|{
-                    y.norm_sqr()
-                }).mean_axis(Axis(1)).unwrap().view());
-                break;
-            }
-        }
-    });
     result
-    
+        .axis_iter_mut(Axis(1))
+        .enumerate()
+        .for_each(|(i, mut x)| {
+            let mut osc = COscillator::new(T::zero(), (T::from(i).unwrap() * df + f_min) * T::PI());
+            let mut n = 0;
+            println!("{}/{}", i, n_freq);
+            loop {
+                let signal: Vec<_> = (0..signal_len).map(|_| osc.get()).collect();
+                let channelized = pfb.analyze(&signal);
+
+                n += 1;
+                if n == niter {
+                    x.assign(
+                        &channelized
+                            .map(|y| y.norm_sqr())
+                            .mean_axis(Axis(1))
+                            .unwrap()
+                            .view(),
+                    );
+                    break;
+                }
+            }
+        });
+    result
 }

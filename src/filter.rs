@@ -1,6 +1,6 @@
 //! A module containing FIR filter
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use std::{
     iter::Sum,
