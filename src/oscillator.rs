@@ -13,9 +13,9 @@ where
     T: Float,
 {
     /// current phase
-    phi: T,
+    pub phi: T,
     /// phase difference between points
-    dphi_dpt: T,
+    pub dphi_dpt: T,
 }
 
 impl<T> COscillator<T>
@@ -37,9 +37,9 @@ where
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CFreqScanner<T> {
-    phi: T,
-    dphi_dpt: T,
-    ddphi_dpt2: T,
+    pub phi: T,
+    pub dphi_dpt: T,
+    pub ddphi_dpt2: T,
 }
 
 impl<T> CFreqScanner<T>
@@ -70,8 +70,8 @@ where
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ROscillator<T> {
-    phi: T,
-    dphi_dpt: T,
+    pub phi: T,
+    pub dphi_dpt: T,
 }
 
 impl<T> ROscillator<T>
