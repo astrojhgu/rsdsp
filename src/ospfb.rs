@@ -1,7 +1,10 @@
 //! oversampling poly phase filter bank
 
 #![allow(clippy::uninit_vec)]
-use crate::{batch_filter::BatchFilter, oscillator::HalfChShifter};
+use crate::{
+    batch_filter::{BatchFilter, BatchFilterFixed},
+    oscillator::HalfChShifter,
+};
 use ndarray::{parallel::prelude::*, s, Array1, Array2, ArrayView1, Axis, ScalarOperand};
 use num::{
     complex::Complex,

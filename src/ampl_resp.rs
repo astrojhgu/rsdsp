@@ -32,7 +32,7 @@ where
     //to_writer(std::fs::File::create("./coarse_pfb.yaml").unwrap(), &coarse_pfb).unwrap();
 
     let fine_pfb =
-        cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, ArrayView1::from(&coeff_fine));
+        cspfb::AnalyzerFixed::<Complex<T>, T>::new(nch_fine * 2, ArrayView1::from(&coeff_fine));
 
     //to_writer(std::fs::File::create("./fine_pfb.yaml").unwrap(), &fine_pfb).unwrap();
 
