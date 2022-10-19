@@ -3,7 +3,6 @@
 use serde::{Deserialize, Serialize};
 
 use std::{
-    collections::VecDeque,
     iter::Sum,
     ops::{Add, Mul},
 };
@@ -141,7 +140,8 @@ where
     /// reversed coefficients, i.e., impulse respone
     //pub filters: Vec<filter::Filter<U, T>>,
     pub coeff: Vec<Vec<T>>,
-    pub state: VecDeque<Vec<U>>,
+    pub state: Vec<Vec<U>>,
+    pub head: usize,
 }
 
 impl<U, T> BatchFilterFixed<U, T>
@@ -172,24 +172,25 @@ where
                 x.to_vec()
             })
             .collect::<Vec<_>>();
-        let state = (0..tap - 1)
+        let state = (0..tap)
             .map(|_| vec![<U as Default>::default(); nch])
             .collect();
 
-        Self { coeff, state }
+        Self { coeff, state , head: 0}
     }
 
     /// filter a time series signal
     /// return the filtered signal
     pub fn filter(&mut self, signal: &[U]) -> Vec<U> {
         let nch = self.coeff[0].len();
+        let tap=self.coeff.len();
         assert_eq!(nch, signal.len());
 
-        self.state.push_back(signal.to_vec());
+        self.state[(self.head+tap-1)%tap].clone_from_slice(signal);
 
         let result = self
             .state
-            .iter()
+            .iter().cycle().skip(self.head)
             .zip(self.coeff.iter())
             .map(|(a, b)| {
                 a.iter()
@@ -205,45 +206,44 @@ where
             })
             .unwrap();
 
-        self.state.pop_front();
+        self.head=(self.head+1)%tap;
         assert_eq!(result.len(), nch);
         result
     }
 
     pub fn feed(&mut self, signal: &[U]) {
         let nch = self.coeff[0].len();
+        let tap=self.coeff.len();
         assert_eq!(nch, signal.len());
-        self.state.push_front(signal.to_vec());
-        self.state.pop_back();
+        self.state[(self.head+tap-1)%tap].clone_from_slice(signal);
+        self.head=(self.head+1)%tap;
     }
 
     pub fn filter_par(&mut self, signal: &[U]) -> Vec<U> {
         let nch = self.coeff[0].len();
+        let tap=self.coeff.len();
         assert_eq!(nch, signal.len());
 
-        self.state.push_back(signal.to_vec());
+        self.state[(self.head+tap-1)%tap].clone_from_slice(signal);
 
-        let result = self
-            .state
-            .par_iter()
+
+        let result = 
+        (0..tap).into_par_iter()
             .zip(self.coeff.par_iter())
-            .map(|(a, b)| {
-                a.iter()
+            .map(|(i, b)| {
+                self.state[(i+self.head)%tap].iter()
                     .zip(b.iter())
                     .map(|(&a1, &b1)| a1 * b1)
                     .collect::<Vec<_>>()
             })
-            .reduce(
-                || vec![<U as Default>::default(); nch],
-                |a, b| {
-                    a.iter()
-                        .zip(b.iter())
-                        .map(|(&a1, &b1)| a1 + b1)
-                        .collect::<Vec<_>>()
-                },
-            );
+            .reduce(|| vec![<U as Default>::default(); nch],|a, b| {
+                a.iter()
+                    .zip(b.iter())
+                    .map(|(&a1, &b1)| a1 + b1)
+                    .collect::<Vec<_>>()
+            });
 
-        self.state.pop_front();
+        self.head=(self.head+1)%tap;
         assert_eq!(result.len(), nch);
         result
     }
