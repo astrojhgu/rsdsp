@@ -22,7 +22,7 @@ where
     T: std::fmt::Debug + Float,
 {
     /// an array of cspfbs, each one for one coarse channel that is selected
-    pfb: Vec<cspfb::AnalyzerFixed<Complex<T>, T>>,
+    pfb: Vec<cspfb::Analyzer<Complex<T>, T>>,
     /// coarse channels selected
     pub coarse_ch_selected: Vec<usize>,
     /// shift frequency in each coarse channel by half of the width of a fine channel
@@ -55,7 +55,7 @@ where
     /// * `coarse_ch_selected` - slected coarse channels
     /// * `pfb1` - a template, which is cloned for each selected coarse channel
     /// * return value - a constructed CsPfb
-    pub fn new(coarse_ch_selected: &[usize], pfb1: &cspfb::AnalyzerFixed<Complex<T>, T>) -> CspPfb<T> {
+    pub fn new(coarse_ch_selected: &[usize], pfb1: &cspfb::Analyzer<Complex<T>, T>) -> CspPfb<T> {
         let coarse_ch_selected = Vec::from(coarse_ch_selected);
         let pfb: Vec<_> = coarse_ch_selected.iter().map(|_| pfb1.clone()).collect();
         let shifter = HalfChShifter::<T>::new(pfb1.nch(), false);

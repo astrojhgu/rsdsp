@@ -150,11 +150,12 @@ pub fn main() {
 
     let outfile = std::fs::File::create(matches.value_of("outfile").unwrap()).unwrap();
     let mut npz = NpzWriter::new(outfile);
-    let _ = npz.add_array("freq", &freqs).unwrap();
-    let _ = npz.add_array("coarse", &coarse_spec).unwrap();
-    let _ = npz.add_array("fine", &fine_spec).unwrap();
-    let _ = npz.add_array(
+    npz.add_array("freq", &freqs).unwrap();
+    npz.add_array("coarse", &coarse_spec).unwrap();
+    npz.add_array("fine", &fine_spec).unwrap();
+    npz.add_array(
         "coarse_ch",
         &ArrayView1::from(&selected_coarse_ch).map(|&x| x as i32),
-    );
+    )
+    .unwrap();
 }

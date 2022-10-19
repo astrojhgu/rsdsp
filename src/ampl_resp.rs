@@ -27,12 +27,12 @@ where
     Complex<T>: ScalarOperand,
 {
     let mut coarse_pfb =
-        ospfb::AnalyzerFixed::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
+        ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
 
     //to_writer(std::fs::File::create("./coarse_pfb.yaml").unwrap(), &coarse_pfb).unwrap();
 
     let fine_pfb =
-        cspfb::AnalyzerFixed::<Complex<T>, T>::new(nch_fine * 2, ArrayView1::from(&coeff_fine));
+        cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, ArrayView1::from(&coeff_fine));
 
     //to_writer(std::fs::File::create("./fine_pfb.yaml").unwrap(), &fine_pfb).unwrap();
 
@@ -68,7 +68,7 @@ where
 
 #[allow(clippy::too_many_arguments)]
 pub fn ampl_resp<T>(
-    pfb: &mut ospfb::AnalyzerFixed<Complex<T>, T>,
+    pfb: &mut ospfb::Analyzer<Complex<T>, T>,
     f_min: T,
     f_max: T,
     n_freq: usize,
@@ -80,7 +80,7 @@ where
     Complex<T>: ScalarOperand,
 {
     //let mut coarse_pfb =
-    //    ospfb::AnalyzerFixed::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
+    //    ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
     let df = (f_max - f_min) / T::from(n_freq - 1).unwrap();
     let mut result = Array2::zeros((pfb.nch_total(), n_freq));
 
