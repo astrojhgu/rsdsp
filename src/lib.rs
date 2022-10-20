@@ -8,6 +8,7 @@ pub mod filter;
 pub mod frac_delayer;
 pub mod oscillator;
 pub mod ospfb;
+pub mod ospfb2;
 pub mod up_sample;
 pub mod utils;
 pub mod window_funcs;

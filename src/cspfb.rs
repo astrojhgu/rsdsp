@@ -105,10 +105,21 @@ where
         signal
     }
 
+    pub fn feed(&mut self, input_signal: &[R]){
+        let nch = self.nch();
+        
+        let signal = self.buffer_input(input_signal);
+        
+        signal.chunks(nch).for_each(|x|{
+            self.batch_filter.feed(x);
+        });
+    }
+
+
     /// Channelize input signal
     /// * `input_signal` - a 1-d slice containing time domain input signal
     /// * return value - channelized data, with `nch` rows
-    pub fn analyze(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
+    pub fn analyze_raw(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
         let nch = self.nch();
         let batch = (self.buffer.len() + input_signal.len()) / nch;
         let signal = self.buffer_input(input_signal);
@@ -128,10 +139,14 @@ where
             fft.process(x.as_slice_mut().unwrap());
         });
 
-        result.t().as_standard_layout().to_owned()
+        result
     }
 
-    pub fn analyze_par(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
+    pub fn analyze(&mut self, input_signal: &[R]) -> Array2<Complex<T>>{
+        self.analyze_raw(input_signal).t().as_standard_layout().to_owned()
+    }
+
+    pub fn analyze_raw_par(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
         let nch = self.nch();
         let batch = (self.buffer.len() + input_signal.len()) / nch;
         let signal = self.buffer_input(input_signal);
@@ -155,6 +170,10 @@ where
                 fft.process(x.as_slice_mut().unwrap());
             });
 
-        result.t().as_standard_layout().to_owned()
+        result
+    }
+
+    pub fn analyze_par(&mut self, input_signal: &[R]) -> Array2<Complex<T>>{
+        self.analyze_raw_par(input_signal).t().as_standard_layout().to_owned()
     }
 }
