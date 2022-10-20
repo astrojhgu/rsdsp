@@ -111,7 +111,7 @@ pub fn main() {
     let niter = matches.value_of("niter").unwrap().parse::<usize>().unwrap();
 
     let coeff_coarse =
-        pfb_coeff::<FloatType>(nch_coarse, tap_coarse, 1.5*k_coarse as FloatType).into_raw_vec();
+        pfb_coeff::<FloatType>(nch_coarse, tap_coarse, 1.55*k_coarse as FloatType).into_raw_vec();
     let coeff_fine =
         pfb_coeff::<FloatType>(nch_fine * 2, tap_fine, k_fine as FloatType).into_raw_vec();
 
