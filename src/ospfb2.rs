@@ -82,7 +82,7 @@ where
         self.pfb_even.nch() * 2
     }
 
-    pub fn analyze(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
+    pub fn analyze_raw(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
         let y_even = self.pfb_even.analyze_raw(input_signal);
         let mut y_odd = self.pfb_odd.analyze_raw(input_signal);
 
@@ -100,10 +100,14 @@ where
         let mut result = unsafe { Array2::<Complex<T>>::uninit((batch, nch)).assume_init() };
         result.slice_mut(s![0_usize..;2,..]).assign(&y_even);
         result.slice_mut(s![1_usize..;2,..]).assign(&y_odd);
-        result.t().as_standard_layout().to_owned()
+        result
     }
 
-    pub fn analyze_par(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
+    pub fn analyze(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
+        self.analyze_raw(input_signal).t().as_standard_layout().to_owned()
+    }
+
+    pub fn analyze_raw_par(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
         let y_even = self.pfb_even.analyze_raw_par(input_signal);
         let mut y_odd = self.pfb_odd.analyze_raw_par(input_signal);
 
@@ -121,6 +125,10 @@ where
         let mut result = unsafe { Array2::<Complex<T>>::uninit((batch, nch)).assume_init() };
         result.slice_mut(s![0_usize..;2,..]).assign(&y_even);
         result.slice_mut(s![1_usize..;2,..]).assign(&y_odd);
-        result.t().as_standard_layout().to_owned()
+        result
+    }
+
+    pub fn analyze_par(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
+        self.analyze_raw_par(input_signal).t().as_standard_layout().to_owned()
     }
 }
