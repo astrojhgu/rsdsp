@@ -5,7 +5,7 @@ use num::{
     traits::{Float, FloatConst, NumAssign},
 };
 
-use ndarray::{Array2, ArrayView1, Axis, ScalarOperand};
+use ndarray::{Array2, Axis, ScalarOperand};
 use rustfft::FftNum;
 use serde::Serialize;
 
@@ -27,12 +27,12 @@ where
     Complex<T>: ScalarOperand,
 {
     let mut coarse_pfb =
-        ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
+        ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, coeff_coarse);
 
     //to_writer(std::fs::File::create("./coarse_pfb.yaml").unwrap(), &coarse_pfb).unwrap();
 
     let fine_pfb =
-        cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, ArrayView1::from(&coeff_fine));
+        cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, coeff_fine);
 
     //to_writer(std::fs::File::create("./fine_pfb.yaml").unwrap(), &fine_pfb).unwrap();
 
@@ -128,12 +128,12 @@ where
     Complex<T>: ScalarOperand,
 {
     let mut coarse_pfb =
-        ospfb2::Analyzer::<Complex<T>, T>::new(nch_coarse, ArrayView1::from(&coeff_coarse));
+        ospfb2::Analyzer::<Complex<T>, T>::new(nch_coarse, coeff_coarse);
 
     //to_writer(std::fs::File::create("./coarse_pfb.yaml").unwrap(), &coarse_pfb).unwrap();
 
     let fine_pfb =
-        cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, ArrayView1::from(&coeff_fine));
+        cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, coeff_fine);
 
     //to_writer(std::fs::File::create("./fine_pfb.yaml").unwrap(), &fine_pfb).unwrap();
 

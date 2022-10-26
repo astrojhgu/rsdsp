@@ -2,7 +2,7 @@
 
 #![allow(clippy::uninit_vec)]
 use crate::cspfb;
-use ndarray::{s, Array2, ArrayView1, Axis, ScalarOperand};
+use ndarray::{s, Array2, Axis, ScalarOperand};
 use num::{
     complex::Complex,
     traits::{Float, FloatConst, NumAssign},
@@ -65,7 +65,7 @@ where
     /// let coeff=windowed_fir::pfb_coeff::<f64>(nch/2, tap_per_ch, k);
     /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.view());
     /// ```
-    pub fn new(nch: usize, coeff: ArrayView1<T>) -> Self {
+    pub fn new(nch: usize, coeff: &[T]) -> Self {
         let tap = coeff.len() / nch;
         assert!(nch * tap == coeff.len());
 

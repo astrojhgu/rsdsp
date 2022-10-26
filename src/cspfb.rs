@@ -2,8 +2,8 @@
 
 #![allow(clippy::uninit_vec)]
 
-use crate::batch_filter::BatchFilter;
-use ndarray::{parallel::prelude::*, s, Array1, Array2, ArrayView1, Axis, ScalarOperand};
+use crate::{batch_filter::BatchFilter, utils::polyphase_decomp};
+use ndarray::{parallel::prelude::*, Array1, Array2, Axis, ScalarOperand};
 use num::{
     complex::Complex,
     traits::{Float, FloatConst, NumAssign},
@@ -52,18 +52,11 @@ where
     /// * `nch` - number of channels including both pos and neg ones
     /// * `coeff` - prototype low-pass filter, the tap of which should be nch times of the tap of each branch.
     /// * return value - `Analyzer`
-    pub fn new(nch: usize, coeff: ArrayView1<T>) -> Self {
+    pub fn new(nch: usize, coeff: &[T]) -> Self {
         let tap = coeff.len() / nch;
         assert!(nch * tap == coeff.len());
-        let coeff = coeff
-            .into_shape((tap, nch))
-            .unwrap()
-            .t()
-            .as_standard_layout()
-            .to_owned();
-        let coeff = coeff.slice(s![..;-1,..]);
-
-        let batch_filter = BatchFilter::new(coeff);
+        let coeff=polyphase_decomp(coeff, nch);
+        let batch_filter = BatchFilter::new(coeff.view());
         Self {
             batch_filter,
             buffer: Vec::new(),

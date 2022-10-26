@@ -1,8 +1,8 @@
 //! oversampling poly phase filter bank
 
 #![allow(clippy::uninit_vec)]
-use crate::{batch_filter::BatchFilter, oscillator::HalfChShifter};
-use ndarray::{parallel::prelude::*, s, Array1, Array2, ArrayView1, Axis, ScalarOperand};
+use crate::{batch_filter::BatchFilter, oscillator::HalfChShifter, utils::polyphase_decomp};
+use ndarray::{parallel::prelude::*, s, Array1, Array2, Axis, ScalarOperand};
 use num::{
     complex::Complex,
     traits::{Float, FloatConst, NumAssign},
@@ -71,19 +71,13 @@ where
     /// let coeff=windowed_fir::pfb_coeff::<f64>(nch/2, tap_per_ch, k);
     /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.view());
     /// ```
-    pub fn new(nch_total: usize, coeff: ArrayView1<T>) -> Self {
+    pub fn new(nch_total: usize, coeff: &[T]) -> Self {
         let nch_each = nch_total / 2;
         let tap = coeff.len() / nch_each;
         assert!(nch_each * tap == coeff.len());
-        let coeff = coeff
-            .into_shape((tap, nch_each))
-            .unwrap()
-            .t()
-            .as_standard_layout()
-            .to_owned();
-        let coeff = coeff.slice(s![..;-1,..]);
-        let filter_even = BatchFilter::new(coeff);
-        let filter_odd = BatchFilter::<Complex<T>, T>::new(coeff);
+        let coeff=polyphase_decomp(coeff, nch_each);
+        let filter_even = BatchFilter::new(coeff.view());
+        let filter_odd = BatchFilter::<Complex<T>, T>::new(coeff.view());
 
         let shifter = HalfChShifter::<T>::new(nch_each, false);
 

@@ -10,7 +10,7 @@ use fftw::{
 };*/
 use rustfft::{FftNum, FftPlanner};
 
-use ndarray::{s, Array1, Array2, ArrayView2};
+use ndarray::{s, Array1, Array2, ArrayView1, ArrayView2};
 
 use num::{
     complex::Complex,
@@ -276,4 +276,19 @@ where
     });
     ifft.process(&mut state1);
     signal.copy_from_slice(&state1[(tap - 1)..]);
+}
+
+pub fn polyphase_decomp<T>(coeff: &[T], nch: usize)->Array2<T>
+where
+    T: Copy,
+{
+    let tap = coeff.len() / nch;
+    let coeff = ArrayView1::from(coeff);
+    let coeff = coeff
+        .into_shape((tap, nch))
+        .unwrap()
+        .t()
+        .as_standard_layout()
+        .to_owned();
+    coeff.slice(s![..;-1,..]).to_owned()
 }
