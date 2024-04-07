@@ -90,7 +90,7 @@ where
         .map(|(i, &x)| {
             let f = (Complex::new(T::zero(), T::one())
                 * w
-                * T::from(i as isize - tap as isize / 2).unwrap())
+                * T::from(i as isize - tap / 2).unwrap())
             .exp();
             f * x
         })
@@ -106,7 +106,7 @@ where
         .iter()
         .enumerate()
         .map(|(i, &x)| {
-            let f = (w * T::from(i as isize - tap as isize / 2).unwrap()).cos();
+            let f = (w * T::from(i as isize - tap / 2).unwrap()).cos();
             f * x
         })
         .collect()

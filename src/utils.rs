@@ -58,7 +58,7 @@ where
     T: Copy,
 {
     let mut result = Vec::with_capacity(in_data.len());
-    let n = (in_data.len() + 1) as usize / 2;
+    let n = (in_data.len() + 1) / 2;
     //for i in n..in_data.len() {
     for item in in_data.iter().skip(n).cloned() {
         //result[i-n-1]=in_data[i];
