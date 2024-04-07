@@ -12,7 +12,7 @@ use num::traits::FloatConst;
 
 use serde_yaml::from_reader;
 
-use clap::{Arg, Command};
+use clap::Parser;
 
 use ndarray::{parallel::prelude::*, Array1, Array2, ArrayView1, Axis};
 
@@ -22,65 +22,33 @@ use ndarray_npy::NpzWriter;
 
 type FloatType = f64;
 
-pub fn main() {
-    let matches = Command::new("ampl_resp_2stages")
-        .arg(
-            Arg::new("chcfg")
-                .short('c')
-                .long("cfg")
-                .takes_value(true)
-                .value_name("config file")
-                .required(true),
-        )
-        .arg(
-            Arg::new("fmin")
-                .short('f')
-                .long("fmin")
-                .allow_hyphen_values(true)
-                .takes_value(true)
-                .value_name("freq")
-                .default_value("-1")
-                .required(false),
-        )
-        .arg(
-            Arg::new("fmax")
-                .short('F')
-                .long("fmax")
-                .allow_hyphen_values(true)
-                .takes_value(true)
-                .value_name("freq")
-                .default_value("1")
-                .required(false),
-        )
-        .arg(
-            Arg::new("nfreq")
-                .short('n')
-                .long("nfreq")
-                .takes_value(true)
-                .value_name("nfreq")
-                .default_value("1024")
-                .required(false),
-        )
-        .arg(
-            Arg::new("niter")
-                .short('t')
-                .long("niter")
-                .takes_value(true)
-                .value_name("niter")
-                .default_value("2")
-                .required(false),
-        )
-        .arg(
-            Arg::new("outfile")
-                .short('o')
-                .long("out")
-                .takes_value(true)
-                .value_name("output name")
-                .required(true),
-        )
-        .get_matches();
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    /// config
+    #[clap(short('c'), long("cfg"), value_name = "config file")]
+    ch_cfg_file:String, 
 
-    let mut cfg_file = File::open(matches.value_of("chcfg").unwrap()).unwrap();
+    #[clap(short('f'), long("fmin"), value_name="minimum freq", default_value="-1")]
+    fmin: FloatType,
+
+    #[clap(short('F'), long("fmax"), value_name="maximum freq", default_value="1")]
+    fmax: FloatType,
+
+    #[clap(short('n'), long("nfreq"), value_name="num of freq", default_value="1024")]
+    nfreq: usize,
+
+    #[clap(short('t'), long("niter"), value_name="niter", default_value="2")]
+    niter: usize,
+
+    #[clap(short('o'), long("out"), value_name="out")]
+    outfile: String,
+}
+
+
+pub fn main() {
+    let args=Args::parse();
+    let mut cfg_file = File::open(args.ch_cfg_file).unwrap();
     let TwoStageCfg {
         coarse_cfg:
             PfbCfg {
@@ -97,18 +65,10 @@ pub fn main() {
         selected_coarse_ch,
     } = from_reader(&mut cfg_file).unwrap();
 
-    let fmin = matches
-        .value_of("fmin")
-        .unwrap()
-        .parse::<FloatType>()
-        .unwrap();
-    let fmax = matches
-        .value_of("fmax")
-        .unwrap()
-        .parse::<FloatType>()
-        .unwrap();
-    let nfreq = matches.value_of("nfreq").unwrap().parse::<usize>().unwrap();
-    let niter = matches.value_of("niter").unwrap().parse::<usize>().unwrap();
+    let fmin = args.fmin;
+    let fmax = args.fmax;
+    let nfreq = args.nfreq;
+    let niter = args.niter;
 
     let coeff_coarse =
         pfb_coeff::<FloatType>(nch_coarse, tap_coarse, 1.55*k_coarse as FloatType).into_raw_vec();
@@ -149,7 +109,7 @@ pub fn main() {
             fine_resp.assign(&ArrayView1::from(&fine_resp1));
         });
 
-    let outfile = std::fs::File::create(matches.value_of("outfile").unwrap()).unwrap();
+    let outfile = std::fs::File::create(args.outfile).unwrap();
     let mut npz = NpzWriter::new(outfile);
     npz.add_array("freq", &freqs).unwrap();
     npz.add_array("coarse", &coarse_spec).unwrap();
