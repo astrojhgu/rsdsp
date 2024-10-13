@@ -70,6 +70,7 @@ where
         self.pfb[0].nch() / 2
     }
 
+    #[allow(clippy::unused_enumerate_index)]
     /// Further channelize the input coarse channels to finer channels
     /// * `x` - input coarse channels, 2D array view, with `number of coarse channels` rows.
     /// * return value - a 2D array with fine channel data, with `number of fine channels` rows.
@@ -103,6 +104,7 @@ where
         result
     }
 
+    #[allow(clippy::unused_enumerate_index)]
     /// Parallel version of [`Self::analyze`].
     pub fn analyze_par(&mut self, x: ArrayView2<Complex<T>>) -> Array2<Complex<T>> {
         let mut x = x.select(Axis(0), &self.coarse_ch_selected);

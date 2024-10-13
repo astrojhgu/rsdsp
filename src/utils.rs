@@ -127,7 +127,7 @@ impl<'a, 'b, T> ConcatedSlice<'a, 'b, T> {
     }
 }
 
-impl<'a, 'b, T> Index<usize> for ConcatedSlice<'a, 'b, T> {
+impl<T> Index<usize> for ConcatedSlice<'_, '_, T>{
     type Output = T;
     fn index(&self, idx: usize) -> &T {
         let b = self.old.len();

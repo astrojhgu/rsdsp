@@ -39,7 +39,8 @@ where
         assert_eq!(tap_per_ch * up_sample_ratio, c.len());
         //let c:Vec<_>=(0..(tap_per_ch*up_sample_ratio)).map(|x| T::from(x).unwrap()).collect();
         let coeffs = Array1::from_vec(c.to_vec())
-            .into_shape((tap_per_ch, up_sample_ratio))
+            //.into_shape((tap_per_ch, up_sample_ratio))
+            .into_shape_with_order((tap_per_ch, up_sample_ratio))
             .unwrap()
             .t()
             .as_standard_layout()
@@ -75,7 +76,8 @@ where
         output
             .t()
             .as_standard_layout()
-            .into_shape(output_len * self.up_sample_ratio)
+            //.into_shape(output_len * self.up_sample_ratio)
+            .into_shape_with_order(output_len * self.up_sample_ratio)
             .unwrap()
             .to_vec()
     }
