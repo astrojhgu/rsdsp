@@ -58,7 +58,8 @@ where
     T: Copy,
 {
     let mut result = Vec::with_capacity(in_data.len());
-    let n = (in_data.len() + 1) / 2;
+    //let n = (in_data.len() + 1) / 2;
+    let n = in_data.len().div_ceil(2);
     //for i in n..in_data.len() {
     for item in in_data.iter().skip(n).cloned() {
         //result[i-n-1]=in_data[i];
@@ -259,7 +260,7 @@ where
 
     let nfft = state1.len();
     if nfft & (nfft - 1) != 0 {
-        eprintln!("Warning: length {} not optimal for fft", nfft);
+        eprintln!("Warning: length {nfft} not optimal for fft");
     }
 
     let tailing_zeros = (0..(nfft - kernel.len())).map(|_| Complex::<T>::default());
@@ -285,7 +286,8 @@ where
     let tap = coeff.len() / nch;
     let coeff = ArrayView1::from(coeff);
     let coeff = coeff
-        .into_shape((tap, nch))
+        //.into_shape((tap, nch))
+        .into_shape_with_order((tap, nch))
         .unwrap()
         .t()
         .as_standard_layout()

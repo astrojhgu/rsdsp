@@ -71,13 +71,13 @@ pub fn main() {
     let nfreq = args.nfreq;
     let niter = args.niter;
 
-    let coeff_coarse =
-        pfb_coeff::<FloatType>(nch_coarse / 2, tap_coarse, k_coarse as FloatType).into_raw_vec();
-    let coeff_fine =
-        pfb_coeff::<FloatType>(nch_fine * 2, tap_fine, k_fine as FloatType).into_raw_vec();
+    let (coeff_coarse,_) =
+        pfb_coeff::<FloatType>(nch_coarse / 2, tap_coarse, k_coarse as FloatType).into_raw_vec_and_offset();
+    let (coeff_fine ,_)=
+        pfb_coeff::<FloatType>(nch_fine * 2, tap_fine, k_fine as FloatType).into_raw_vec_and_offset();
 
     let signal_len = coeff_coarse.len() + coeff_fine.len() * nch_coarse / 2;
-    println!("signal length={}", signal_len);
+    println!("signal length={signal_len}");
     let bandwidth = (fmax - fmin) * FloatType::PI();
     let df = bandwidth / (nfreq + 1) as FloatType;
     let freqs = Array1::from(
@@ -85,7 +85,7 @@ pub fn main() {
     );
     let mut coarse_spec = Array2::<FloatType>::zeros((nfreq, selected_coarse_ch.len()));
     let mut fine_spec = Array2::<FloatType>::zeros((nfreq, selected_coarse_ch.len() * nch_fine));
-    println!("{:?}", freqs);
+    println!("{freqs:?}");
 
     fine_spec
         .axis_iter_mut(Axis(0))

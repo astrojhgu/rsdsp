@@ -8,6 +8,6 @@ fn main() {
     let mut upsample = rsdsp::up_sample::UpSampler::<f64, f64>::new(32, 4);
     let signal1 = upsample.up_sample(&signal);
     for x in signal1 {
-        println!("{}", x);
+        println!("{x}");
     }
 }

@@ -25,6 +25,6 @@ features = ["derive"]
 version = "1.0.210"
 
 [package]
-edition = "2021"
+edition = "2024"
 name = "rsdsp"
 version = "0.1.0"

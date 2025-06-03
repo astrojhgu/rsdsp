@@ -59,10 +59,10 @@ where
 
     let fine_data = csp.analyze(coarse_data.view());
 
-    let fine_resp = fine_data
+    let (fine_resp,_) = fine_data
         .map(|x| x.norm_sqr())
         .sum_axis(Axis(1))
-        .into_raw_vec();
+        .into_raw_vec_and_offset();
     (coarse_resp, fine_resp)
 }
 
@@ -90,7 +90,7 @@ where
         .for_each(|(i, mut x)| {
             let mut osc = COscillator::new(T::zero(), (T::from(i).unwrap() * df + f_min) * T::PI());
             let mut n = 0;
-            println!("{}/{}", i, n_freq);
+            println!("{i}/{n_freq}");
             loop {
                 let signal: Vec<_> = (0..signal_len).map(|_| osc.get()).collect();
                 let channelized = pfb.analyze(&signal);
@@ -160,9 +160,9 @@ where
 
     let fine_data = csp.analyze(coarse_data.view());
 
-    let fine_resp = fine_data
+    let (fine_resp,_) = fine_data
         .map(|x| x.norm_sqr())
         .sum_axis(Axis(1))
-        .into_raw_vec();
+        .into_raw_vec_and_offset();
     (coarse_resp, fine_resp)
 }
