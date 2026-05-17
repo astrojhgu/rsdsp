@@ -10,7 +10,7 @@ use fftw::{
 };*/
 use rustfft::{FftNum, FftPlanner};
 
-use ndarray::{s, Array1, Array2, ArrayView1, ArrayView2};
+use ndarray::{Array1, Array2, ArrayView1, ArrayView2, s};
 
 use num::{
     complex::Complex,
@@ -77,7 +77,8 @@ pub fn fftshift2<T>(in_data: ArrayView2<T>) -> Array2<T>
 where
     T: Copy,
 {
-    assert!(in_data.shape()[0] % 2 == 0);
+    //assert!(in_data.shape()[0] % 2 == 0);
+    assert!(in_data.shape()[0].is_multiple_of(2));
     let n2 = in_data.shape()[0] / 2;
     let mut result =
         unsafe { Array2::uninit((in_data.shape()[0], in_data.shape()[1])).assume_init() };
@@ -128,7 +129,7 @@ impl<'a, 'b, T> ConcatedSlice<'a, 'b, T> {
     }
 }
 
-impl<T> Index<usize> for ConcatedSlice<'_, '_, T>{
+impl<T> Index<usize> for ConcatedSlice<'_, '_, T> {
     type Output = T;
     fn index(&self, idx: usize) -> &T {
         let b = self.old.len();
@@ -201,11 +202,7 @@ where
             )
         })
         .fold(Array1::<Complex<T>>::zeros(fold_len), |x, y| {
-            if y.len() == fold_len {
-                x + y
-            } else {
-                x
-            }
+            if y.len() == fold_len { x + y } else { x }
         });
     //fftshift(result.as_slice().unwrap())
     result.to_vec()
@@ -279,7 +276,7 @@ where
     signal.copy_from_slice(&state1[(tap - 1)..]);
 }
 
-pub fn polyphase_decomp<T>(coeff: &[T], nch: usize)->Array2<T>
+pub fn polyphase_decomp<T>(coeff: &[T], nch: usize) -> Array2<T>
 where
     T: Copy,
 {
