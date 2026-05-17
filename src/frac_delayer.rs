@@ -92,6 +92,7 @@ where
     T: std::fmt::Debug,
 {
     pub coeff_rev: Vec<T>,
+    pub delay_i: isize,
     pub buffer: Vec<R>,
     pub max_delay: usize,
 }
@@ -124,16 +125,13 @@ where
     pub fn new(max_delay: usize, half_tap: usize) -> FracDelayer<T, R> {
         FracDelayer {
             coeff_rev: delayer_coeff_rev(T::zero(), half_tap),
+            delay_i: 0,
             buffer: vec![R::zero(); 2 * max_delay + half_tap * 2 + 1],
             max_delay,
         }
     }
 
-    /// delay the input signal
-    /// Note that there is an unchangable intrinsic delay related to the filter tap
-    /// * `signal` - input signal
-    /// * `dv` - delay value
-    pub fn delay<U>(&mut self, signal: &[R], dv: U) -> Vec<R>
+    pub fn update_delay_value<U>(&mut self, dv: U)
     where
         U: ToDelayValue<T> + std::fmt::Debug,
     {
@@ -142,10 +140,17 @@ where
             f: delay_f,
         } = dv.to_delay_value();
         assert!(delay_i.unsigned_abs() < self.max_delay);
-        //println!("{:?} {:?}", delay_i, delay_f);
-        //println!("{:?} {:?}", delay_i, delay_f);
-
+        self.delay_i = delay_i;
         self.coeff_rev = delayer_coeff_rev(delay_f, (self.coeff_rev.len() - 1) / 2);
+    }
+
+    /// delay the input signal
+    /// Note that there is an unchangable intrinsic delay related to the filter tap
+    /// * `signal` - input signal
+    /// * `dv` - delay value
+    pub fn delay(&mut self, signal: &[R]) -> Vec<R> {
+        //println!("{:?} {:?}", delay_i, delay_f);
+        //println!("{:?} {:?}", delay_i, delay_f);
         //let extended_signal:Vec<T>=self.buffer.iter().cloned().chain(signal.iter().cloned()).collect();
         let concated = ConcatedSlice::new(&self.buffer, signal);
         let first_idx = self.max_delay;
@@ -155,7 +160,8 @@ where
             .map(|i| {
                 (0..self.coeff_rev.len())
                     .map(|j| {
-                        concated[(i as isize + j as isize - delay_i) as usize] * self.coeff_rev[j]
+                        concated[(i as isize + j as isize - self.delay_i) as usize]
+                            * self.coeff_rev[j]
                     })
                     .sum()
             })
@@ -210,8 +216,10 @@ mod tests {
         let signal: Vec<_> = (0..signal_len)
             .map(|i| ((i as f64 * signal_omega) * Complex::new(0.0, 1.0)).exp())
             .collect();
-        let delayed_signal1 = delayer1.delay(&signal, 0.0);
-        let delayed_signal2 = delayer2.delay(&signal, dt);
+        delayer1.update_delay_value(0.0);
+        let delayed_signal1 = delayer1.delay(&signal);
+        delayer2.update_delay_value(dt);
+        let delayed_signal2 = delayer2.delay(&signal);
         //println!("{}", delayed_signal1.len());
         let corr = &delayed_signal1[dt_idx..signal.len() - dt_idx]
             .iter()

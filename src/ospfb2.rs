@@ -2,7 +2,7 @@
 
 #![allow(clippy::uninit_vec)]
 use crate::cspfb;
-use ndarray::{s, Array2, Axis, ScalarOperand};
+use ndarray::{Array2, Axis, ScalarOperand, s};
 use num::{
     complex::Complex,
     traits::{Float, FloatConst, NumAssign},
@@ -10,7 +10,7 @@ use num::{
 
 use serde::{Deserialize, Serialize};
 
-use rustfft::{FftNum};
+use rustfft::FftNum;
 use std::{iter::Sum, ops::Mul};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -63,7 +63,7 @@ where
     /// let tap_per_ch=16;
     /// let k=1.1;
     /// let coeff=windowed_fir::pfb_coeff::<f64>(nch/2, tap_per_ch, k);
-    /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.view());
+    /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.as_slice().unwrap());
     /// ```
     pub fn new(nch: usize, coeff: &[T]) -> Self {
         let tap = coeff.len() / nch;
@@ -104,7 +104,10 @@ where
     }
 
     pub fn analyze(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
-        self.analyze_raw(input_signal).t().as_standard_layout().to_owned()
+        self.analyze_raw(input_signal)
+            .t()
+            .as_standard_layout()
+            .to_owned()
     }
 
     pub fn analyze_raw_par(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
@@ -129,6 +132,9 @@ where
     }
 
     pub fn analyze_par(&mut self, input_signal: &[R]) -> Array2<Complex<T>> {
-        self.analyze_raw_par(input_signal).t().as_standard_layout().to_owned()
+        self.analyze_raw_par(input_signal)
+            .t()
+            .as_standard_layout()
+            .to_owned()
     }
 }

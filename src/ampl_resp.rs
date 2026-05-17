@@ -26,13 +26,11 @@ where
     T: Float + FloatConst + NumAssign + FftNum + Default + ScalarOperand + Serialize,
     Complex<T>: ScalarOperand,
 {
-    let mut coarse_pfb =
-        ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, coeff_coarse);
+    let mut coarse_pfb = ospfb::Analyzer::<Complex<T>, T>::new(nch_coarse, coeff_coarse);
 
     //to_writer(std::fs::File::create("./coarse_pfb.yaml").unwrap(), &coarse_pfb).unwrap();
 
-    let fine_pfb =
-        cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, coeff_fine);
+    let fine_pfb = cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, coeff_fine);
 
     //to_writer(std::fs::File::create("./fine_pfb.yaml").unwrap(), &fine_pfb).unwrap();
 
@@ -59,7 +57,7 @@ where
 
     let fine_data = csp.analyze(coarse_data.view());
 
-    let (fine_resp,_) = fine_data
+    let (fine_resp, _) = fine_data
         .map(|x| x.norm_sqr())
         .sum_axis(Axis(1))
         .into_raw_vec_and_offset();
@@ -111,7 +109,6 @@ where
     result
 }
 
-
 #[allow(clippy::too_many_arguments)]
 pub fn ampl_resp_2stages_1freq2<T>(
     nch_coarse: usize,
@@ -127,13 +124,11 @@ where
     T: Float + FloatConst + NumAssign + FftNum + Default + ScalarOperand + Serialize,
     Complex<T>: ScalarOperand,
 {
-    let mut coarse_pfb =
-        ospfb2::Analyzer::<Complex<T>, T>::new(nch_coarse, coeff_coarse);
+    let mut coarse_pfb = ospfb2::Analyzer::<Complex<T>, T>::new(nch_coarse, coeff_coarse);
 
     //to_writer(std::fs::File::create("./coarse_pfb.yaml").unwrap(), &coarse_pfb).unwrap();
 
-    let fine_pfb =
-        cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, coeff_fine);
+    let fine_pfb = cspfb::Analyzer::<Complex<T>, T>::new(nch_fine * 2, coeff_fine);
 
     //to_writer(std::fs::File::create("./fine_pfb.yaml").unwrap(), &fine_pfb).unwrap();
 
@@ -160,7 +155,7 @@ where
 
     let fine_data = csp.analyze(coarse_data.view());
 
-    let (fine_resp,_) = fine_data
+    let (fine_resp, _) = fine_data
         .map(|x| x.norm_sqr())
         .sum_axis(Axis(1))
         .into_raw_vec_and_offset();

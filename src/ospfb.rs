@@ -2,7 +2,7 @@
 
 #![allow(clippy::uninit_vec)]
 use crate::{batch_filter::BatchFilter, oscillator::HalfChShifter, utils::polyphase_decomp};
-use ndarray::{parallel::prelude::*, s, Array1, Array2, Axis, ScalarOperand};
+use ndarray::{Array1, Array2, Axis, ScalarOperand, parallel::prelude::*, s};
 use num::{
     complex::Complex,
     traits::{Float, FloatConst, NumAssign},
@@ -69,13 +69,13 @@ where
     /// let tap_per_ch=16;
     /// let k=1.1;
     /// let coeff=windowed_fir::pfb_coeff::<f64>(nch/2, tap_per_ch, k);
-    /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.view());
+    /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.as_slice().unwrap());
     /// ```
     pub fn new(nch_total: usize, coeff: &[T]) -> Self {
         let nch_each = nch_total / 2;
         let tap = coeff.len() / nch_each;
         assert!(nch_each * tap == coeff.len());
-        let coeff=polyphase_decomp(coeff, nch_each);
+        let coeff = polyphase_decomp(coeff, nch_each);
         let filter_even = BatchFilter::new(coeff.view());
         let filter_odd = BatchFilter::<Complex<T>, T>::new(coeff.view());
 
@@ -142,7 +142,7 @@ where
     /// let tap_per_ch=16;
     /// let k=1.1;
     /// let coeff=windowed_fir::pfb_coeff::<f64>(nch/2, tap_per_ch, k);
-    /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.view());
+    /// let mut pfb=Analyzer::<Complex<f64>, f64>::new(nch, coeff.as_slice().unwrap());
     /// let mut osc=COscillator::<f64>::new(0.0, f64::PI()/(nch/2) as f64*4.0);//some certain frequency
     /// let input_signal:Vec<_>=(0..256).map(|_| osc.get()).collect();
     /// let channelized_signal=pfb.analyze(&input_signal);
