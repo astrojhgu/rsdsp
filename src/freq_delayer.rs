@@ -74,4 +74,12 @@ where
                 x1.assign(&y1);
             });
     }
+
+    pub fn naive_delay(&mut self, mut x: ArrayViewMut2<Complex<T>>) {
+        x.axis_iter_mut(Axis(0))
+            .zip(self.wgt.iter())
+            .for_each(|(mut x1, &w)| {
+                x1 *= w;
+            });
+    }
 }
