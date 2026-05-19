@@ -2,7 +2,7 @@
   description = "mpi_rust derivation (converted from default.nix)";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
   };
 
   outputs = { self, nixpkgs, ... }:
@@ -19,6 +19,7 @@
           llvmPackages.libclang.lib
           cfitsio
           pkg-config
+          openssl
 
 
           autoconf
